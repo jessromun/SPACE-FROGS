@@ -1,36 +1,50 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 
-let intervalId;
+let intervalId = undefined;
 let frames = 0;
+const keys = [];
 
 let enemiesArr = [];
 let enemiesCount = 2;
 
+const p1 = new Character(15, 15);
+
 document.querySelector('#start').onclick = start;
 
 function start() {
-    if (intervalId) return
-
+    if (intervalId) return;
     update();
 }
 
 function update() {
     frames++;
+    intervalId = undefined;
     // 1. Calc.
     generateEnemies();
-
+    checkKeys();
+    checkCrash();
+    p1.changePos();
     //2. Clear
     cleanEnemies();
     clearCanvas();
     //3. Draw
     drawEnemies();
+    p1.draw();
 
-
-    intervalId = setTimeout(requestAnimationFrame(update), 1000 / 60);
+    // Game times    
+    //intervalId = setTimeout(requestAnimationFrame(update), 1000 / 60);
+    animation();
+    checkHealth();
 }
 
 // Aux Functions
+
+function animation() {
+    if (!intervalId) {
+        intervalId = requestAnimationFrame(update);
+    }
+}
 
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -59,4 +73,59 @@ function randomNumber(range = 1, offset = 0, isRoundNeeded = true) {
 
 function cleanEnemies() {
     enemiesArr = enemiesArr.filter(e => e.y <= $canvas.height);
+}
+
+// Controls
+document.onkeydown = e => {
+    keys[e.key] = true;
+}
+
+document.onkeyup = e => {
+    keys[e.key] = false;
+}
+
+function checkKeys() {
+    if (keys['ArrowUp']) {
+        p1.y -= p1.velY;
+    }
+    if (keys['ArrowDown']) {
+        p1.y += p1.velY;
+    }
+    if (keys['ArrowLeft']) {
+        p1.x -= p1.velX;
+    }
+    if (keys['ArrowRight']) {
+        p1.x += p1.velX;
+    }
+}
+
+function checkCrash() {
+    enemiesArr = enemiesArr.filter(e => {
+        if (p1.isTouching(e)) {
+            p1.health--;
+            return false;
+        }
+        return true;
+    });
+}
+
+function gameOverStop() {
+    //clearInterval(intervalId);
+    window.cancelAnimationFrame(intervalId);
+    console.log('game over');
+}
+
+function gameOverDraw() {
+    const img = new Image();
+    img.src = '../images/gameOver.png';
+    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+}
+
+function checkHealth() {
+    if (p1.health === 0) {
+        gameOverStop();
+        clearCanvas();
+        gameOverDraw();
+        console.log('health checked, he\'s dead');
+    }
 }
