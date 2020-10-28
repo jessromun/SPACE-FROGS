@@ -1,26 +1,17 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 
-let intervalId = undefined;
+let intervalIdGame = null;
 const keys = [];
 
-let frames, enemiesArr, enemiesCount, p1, shotsArr, score;
+let frames, enemiesArr, enemiesCount, p1, shotsArr, score, isOver = false;
 
 document.querySelector('#start').onclick = start;
 
 function start() {
-    if (intervalId) return;
-
-    // restore the values
-    keys.length = 0;
-    enemiesArr = [];
-    shotsArr = [];
-    enemiesCount = 2;
-    frames = 0;
-    score = 0;
-    p1 = new Character();
-
-    intervalId = setInterval(update, 100 / 6);
+    if (intervalIdGame) return;
+    defaultSettings();
+    intervalIdGame = requestAnimationFrame(update);
 }
 
 function update() {
@@ -39,11 +30,25 @@ function update() {
     drawShots();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
-    checkHealth();
-    console.log(score);
+    gameOver();
+    if (!isOver) {
+        intervalIdGame = requestAnimationFrame(update);
+    }
 }
 
 // Aux Functions
+function defaultSettings() {
+    intervalIdGame = null;
+    isOver = false;
+    keys.length = 0;
+    enemiesArr = [];
+    shotsArr = [];
+    enemiesCount = 2;
+    frames = 0;
+    score = 0;
+    p1 = new Character();
+}
+
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
 }
@@ -112,9 +117,9 @@ function checkCrashEnemiesCharacter() {
     });
 }
 
-function gameOverStop() {
-    clearInterval(intervalId);
-    intervalId = null;
+function stopInterval(interval) {
+    window.cancelAnimationFrame(interval);
+    interval = null;
 }
 
 function gameOverDraw() {
@@ -125,12 +130,25 @@ function gameOverDraw() {
     ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
 }
 
-function checkHealth() {
-    if (p1.health === 0) {
-        gameOverStop();
+function isAlive() {
+    return p1.health <= 0;
+}
+
+function gameOver() {
+    if (isAlive()) {
+        stopInterval(intervalIdGame);
         clearCanvas();
+        defaultSettings();
         gameOverDraw();
+        isOver = true;
+        console.log('score: ', score);
     }
+}
+
+
+function gameOverStop() {
+    cancelAnimationFrame(intervalIdGame);
+    intervalIdGame = null;
 }
 
 function drawShots() {

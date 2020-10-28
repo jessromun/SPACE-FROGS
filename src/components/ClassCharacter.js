@@ -3,10 +3,10 @@ class Character {
         this.width = 49;
         this.height = 132;
         this.x = $canvas.width / 2 - this.width / 2;
-        this.y = $canvas.height - this.height - 20;
+        this.y = $canvas.height - this.height - 100;
         this.img = new Image();
         this.img.src = '../../images/flyingMan.svg';
-        this.velY = 5;
+        this.velY = 7;
         this.velX = 5;
         this.gravity = 1.5;
         this.health = 5;
