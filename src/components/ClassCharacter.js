@@ -17,7 +17,7 @@ class Character {
         if (this.y > $canvas.height - this.height) this.y = $canvas.height - this.height;
         if (this.x < 0) this.x = $canvas.width;
         if (this.x > $canvas.width) this.x = 0;
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height)
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
     changePos() {
