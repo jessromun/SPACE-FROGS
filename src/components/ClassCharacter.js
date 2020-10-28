@@ -1,14 +1,14 @@
 class Character {
-    constructor(width = 10, height = 20) {
-        this.x = $canvas.width / 2 - width / 2;
-        this.y = $canvas.height - height - 20;
-        this.width = width;
-        this.height = height;
+    constructor() {
+        this.width = 49;
+        this.height = 132;
+        this.x = $canvas.width / 2 - this.width / 2;
+        this.y = $canvas.height - this.height - 20;
         this.img = new Image();
-        this.img.src = '../../images/flyingMan.png';
-        this.velY = 1.5;
-        this.velX = 3;
-        this.gravity = 0.5;
+        this.img.src = '../../images/flyingMan.svg';
+        this.velY = 5;
+        this.velX = 5;
+        this.gravity = 1.5;
         this.health = 5;
     }
 

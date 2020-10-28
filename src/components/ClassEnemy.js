@@ -5,7 +5,7 @@ class Enemy {
         this.height = height;
         this.y = y - this.height;
         this.img = new Image();
-        this.img.src = '../../images/spaceShip.png';
+        this.img.src = '../../images/spaceShip.svg';
         this.freq = freq;
         this.gravity = gravity;
     }

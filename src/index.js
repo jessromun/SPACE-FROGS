@@ -18,7 +18,7 @@ function start() {
     enemiesCount = 2;
     frames = 0;
     score = 0;
-    p1 = new Character(15, 15);
+    p1 = new Character();
 
     intervalId = setInterval(update, 100 / 6);
 }
@@ -50,12 +50,12 @@ function clearCanvas() {
 
 function generateEnemies() {
     if (enemiesArr.length < enemiesCount) {
-        let initWidth = randomNumber(55, 15);
-        let initHeight = randomNumber(10, 5);
+        let initWidth = randomNumber(46, 94);
+        let initHeight = randomNumber(25, 50);
         let initX = randomNumber($canvas.width - initWidth, initWidth);
         let initY = - randomNumber(initHeight);
         let initFreq = randomNumber(0.2, 0.04, false);
-        let initGravity = randomNumber(0.34, 0.4, false);
+        let initGravity = randomNumber(2, 0.5, false);
         enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
     }
 }
@@ -97,7 +97,7 @@ function checkKeys() {
     }
     if (keys[' ']) {
         if (frames % (60 / 5) === 0) { // para disparar 5 veces ps
-            shotsArr.push(new Shot(p1.x, p1.y));
+            shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
         }
     }
 }
@@ -119,7 +119,7 @@ function gameOverStop() {
 
 function gameOverDraw() {
     const img = new Image();
-    img.src = '../images/gameOver.png';
+    img.src = '../images/gameOver.svg';
     ctx.fillStyle = '#262338';
     ctx.fillRect(0, 0, $canvas.width, $canvas.height);
     ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
