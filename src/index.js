@@ -1,7 +1,7 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 
-let intervalIdGame = null;
+let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
 
 let frames, enemiesArr, enemiesCount, p1, shotsArr, score, isOver = false;
@@ -39,6 +39,7 @@ function update() {
 // Aux Functions
 function defaultSettings() {
     intervalIdGame = null;
+    stopInterval(intervalIdOver);
     isOver = false;
     keys.length = 0;
     enemiesArr = [];
@@ -128,6 +129,7 @@ function gameOverDraw() {
     ctx.fillStyle = '#262338';
     ctx.fillRect(0, 0, $canvas.width, $canvas.height);
     ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+    intervalIdOver = requestAnimationFrame(gameOverDraw);
 }
 
 function isAlive() {
@@ -139,7 +141,7 @@ function gameOver() {
         stopInterval(intervalIdGame);
         clearCanvas();
         defaultSettings();
-        gameOverDraw();
+        intervalIdOver = requestAnimationFrame(gameOverDraw);
         isOver = true;
         console.log('score: ', score);
     }
