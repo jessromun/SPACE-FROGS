@@ -27,10 +27,10 @@ function update() {
     generateEnemies();
     checkKeys();
     p1.changePos();
-    //2. Clear
+    //2. Clear.
     cleanEnemies();
     clearCanvas();
-    //3. Draw
+    //3. Draw.
     drawEnemies();
     p1.draw();
     checkCrash();
