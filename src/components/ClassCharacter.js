@@ -6,7 +6,7 @@ class Character {
         this.height = height;
         this.img = new Image();
         this.img.src = '../../images/flyingMan.png';
-        this.velY = 2;
+        this.velY = 1.5;
         this.velX = 3;
         this.gravity = 0.5;
         this.health = 5;

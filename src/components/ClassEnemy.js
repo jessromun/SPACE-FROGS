@@ -17,4 +17,13 @@ class Enemy {
         else { this.x = Math.cos(this.freq * frames) * (this.width / 10) + this.x; }
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
+
+    isTouching(obstacle) {
+        return (
+            this.x < obstacle.x + obstacle.width &&
+            this.x + this.width > obstacle.x &&
+            this.y < obstacle.y + obstacle.height &&
+            this.y + this.height > obstacle.y
+        );
+    }
 }
