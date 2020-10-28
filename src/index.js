@@ -37,8 +37,8 @@ function update() {
     drawEnemies();
     p1.draw();
     drawShots();
-    checkCrash();
-    checkShoot();
+    checkCrashEnemiesCharacter();
+    checkShootToEnemies();
     checkHealth();
     console.log(score);
 }
@@ -102,7 +102,7 @@ function checkKeys() {
     }
 }
 
-function checkCrash() {
+function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
             p1.health--;
@@ -141,7 +141,7 @@ function cleanShots() {
     shotsArr = shotsArr.filter(shot => shot.y >= -shot.height);
 }
 
-function checkShoot() {
+function checkShootToEnemies() {
     shotsArr = shotsArr.filter(shot => {
         let enemiesLen = enemiesArr.length;
         enemiesArr = enemiesArr.filter(enemy => {
@@ -155,4 +155,3 @@ function checkShoot() {
         return true;
     });
 }
-
