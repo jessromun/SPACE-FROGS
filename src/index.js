@@ -1,36 +1,54 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 
-let intervalId;
-let frames = 0;
+let intervalIdGame = null, intervalIdOver = null;
+const keys = [];
 
-let enemiesArr = [];
-let enemiesCount = 2;
+let frames, enemiesArr, enemiesCount, p1, shotsArr, score, isOver = false;
 
 document.querySelector('#start').onclick = start;
 
 function start() {
-    if (intervalId) return
-
-    update();
+    if (intervalIdGame) return;
+    defaultSettings();
+    intervalIdGame = requestAnimationFrame(update);
 }
 
 function update() {
     frames++;
     // 1. Calc.
     generateEnemies();
-
-    //2. Clear
+    checkKeys();
+    p1.changePos();
+    //2. Clear.
     cleanEnemies();
+    cleanShots();
     clearCanvas();
-    //3. Draw
+    //3. Draw.
     drawEnemies();
-
-
-    intervalId = setTimeout(requestAnimationFrame(update), 1000 / 60);
+    p1.draw();
+    drawShots();
+    checkCrashEnemiesCharacter();
+    checkShootToEnemies();
+    gameOver();
+    if (!isOver) {
+        intervalIdGame = requestAnimationFrame(update);
+    }
 }
 
 // Aux Functions
+function defaultSettings() {
+    intervalIdGame = null;
+    stopInterval(intervalIdOver);
+    isOver = false;
+    keys.length = 0;
+    enemiesArr = [];
+    shotsArr = [];
+    enemiesCount = 2;
+    frames = 0;
+    score = 0;
+    p1 = new Character();
+}
 
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -38,12 +56,12 @@ function clearCanvas() {
 
 function generateEnemies() {
     if (enemiesArr.length < enemiesCount) {
-        let initWidth = randomNumber(55, 15);
-        let initHeight = randomNumber(10, 5);
+        let initWidth = randomNumber(46, 94);
+        let initHeight = randomNumber(25, 50);
         let initX = randomNumber($canvas.width - initWidth, initWidth);
         let initY = - randomNumber(initHeight);
         let initFreq = randomNumber(0.2, 0.04, false);
-        let initGravity = randomNumber(0.34, 0.4, false);
+        let initGravity = randomNumber(2, 0.5, false);
         enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
     }
 }
@@ -59,4 +77,101 @@ function randomNumber(range = 1, offset = 0, isRoundNeeded = true) {
 
 function cleanEnemies() {
     enemiesArr = enemiesArr.filter(e => e.y <= $canvas.height);
+}
+
+// Controls
+document.onkeydown = e => {
+    keys[e.key] = true;
+}
+
+document.onkeyup = e => {
+    keys[e.key] = false;
+}
+
+function checkKeys() {
+    if (keys['ArrowUp']) {
+        p1.y -= p1.velY;
+    }
+    if (keys['ArrowDown']) {
+        p1.y += p1.velY;
+    }
+    if (keys['ArrowLeft']) {
+        p1.x -= p1.velX;
+    }
+    if (keys['ArrowRight']) {
+        p1.x += p1.velX;
+    }
+    if (keys[' ']) {
+        if (frames % (60 / 5) === 0) { // para disparar 5 veces ps
+            shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
+        }
+    }
+}
+
+function checkCrashEnemiesCharacter() {
+    enemiesArr = enemiesArr.filter(e => {
+        if (p1.isTouching(e)) {
+            p1.health--;
+            return false;
+        }
+        return true;
+    });
+}
+
+function stopInterval(interval) {
+    window.cancelAnimationFrame(interval);
+    interval = null;
+}
+
+function gameOverDraw() {
+    const img = new Image();
+    img.src = '../images/gameOver.svg';
+    ctx.fillStyle = '#262338';
+    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
+    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+    intervalIdOver = requestAnimationFrame(gameOverDraw);
+}
+
+function isAlive() {
+    return p1.health <= 0;
+}
+
+function gameOver() {
+    if (isAlive()) {
+        stopInterval(intervalIdGame);
+        clearCanvas();
+        defaultSettings();
+        intervalIdOver = requestAnimationFrame(gameOverDraw);
+        isOver = true;
+        console.log('score: ', score);
+    }
+}
+
+
+function gameOverStop() {
+    cancelAnimationFrame(intervalIdGame);
+    intervalIdGame = null;
+}
+
+function drawShots() {
+    shotsArr.forEach(shot => shot.draw());
+}
+
+function cleanShots() {
+    shotsArr = shotsArr.filter(shot => shot.y >= -shot.height);
+}
+
+function checkShootToEnemies() {
+    shotsArr = shotsArr.filter(shot => {
+        let enemiesLen = enemiesArr.length;
+        enemiesArr = enemiesArr.filter(enemy => {
+            if (enemy.isTouching(shot)) {
+                score += 10;
+                return false;
+            }
+            return true;
+        });
+        if (enemiesLen !== enemiesArr.length) return false;
+        return true;
+    });
 }
