@@ -2,28 +2,30 @@ const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 
 let intervalId = undefined;
-let frames = 0;
 const keys = [];
 
-let enemiesArr = [];
-let enemiesCount = 2;
-
-const p1 = new Character(15, 15);
+let frames, enemiesArr, enemiesCount, p1;
 
 document.querySelector('#start').onclick = start;
 
 function start() {
     if (intervalId) return;
-    update();
+
+    // restore the values
+    keys.length = 0;
+    enemiesArr = [];
+    enemiesCount = 2;
+    frames = 0;
+    p1 = new Character(15, 15);
+
+    intervalId = setInterval(update, 100 / 6);
 }
 
 function update() {
     frames++;
-    intervalId = undefined;
     // 1. Calc.
     generateEnemies();
     checkKeys();
-    checkCrash();
     p1.changePos();
     //2. Clear
     cleanEnemies();
@@ -31,20 +33,14 @@ function update() {
     //3. Draw
     drawEnemies();
     p1.draw();
-
-    // Game times    
-    //intervalId = setTimeout(requestAnimationFrame(update), 1000 / 60);
-    animation();
+    checkCrash();
     checkHealth();
+    console.log(keys)
+    // Game times    
+
 }
 
 // Aux Functions
-
-function animation() {
-    if (!intervalId) {
-        intervalId = requestAnimationFrame(update);
-    }
-}
 
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -110,15 +106,17 @@ function checkCrash() {
 }
 
 function gameOverStop() {
-    //clearInterval(intervalId);
-    window.cancelAnimationFrame(intervalId);
-    console.log('game over');
+    clearInterval(intervalId);
+    intervalId = null;
 }
 
 function gameOverDraw() {
     const img = new Image();
     img.src = '../images/gameOver.png';
+    ctx.fillStyle = '#262338';
+    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
     ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+    // debugger
 }
 
 function checkHealth() {
@@ -126,6 +124,5 @@ function checkHealth() {
         gameOverStop();
         clearCanvas();
         gameOverDraw();
-        console.log('health checked, he\'s dead');
     }
 }

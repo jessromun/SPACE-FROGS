@@ -1,7 +1,7 @@
 class Character {
     constructor(width = 10, height = 20) {
         this.x = $canvas.width / 2 - width / 2;
-        this.y = $canvas.height - height - 5;
+        this.y = $canvas.height - height - 20;
         this.width = width;
         this.height = height;
         this.img = new Image();
