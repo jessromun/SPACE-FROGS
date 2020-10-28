@@ -35,13 +35,9 @@ function update() {
     p1.draw();
     checkCrash();
     checkHealth();
-    console.log(keys)
-    // Game times    
-
 }
 
 // Aux Functions
-
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
 }
@@ -116,7 +112,6 @@ function gameOverDraw() {
     ctx.fillStyle = '#262338';
     ctx.fillRect(0, 0, $canvas.width, $canvas.height);
     ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
-    // debugger
 }
 
 function checkHealth() {
