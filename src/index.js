@@ -258,5 +258,4 @@ function nextLevel(firstState) {
     level = firstState.level + 1;
     enemyHealth *= level;
     ampMovBoss *= level;
-
 }
