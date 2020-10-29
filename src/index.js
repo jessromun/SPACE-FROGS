@@ -90,6 +90,10 @@ function healCharacter() {
     }
 }
 
+function drawIndicatorBars() {
+
+}
+
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;

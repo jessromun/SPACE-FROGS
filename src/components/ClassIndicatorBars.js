@@ -18,6 +18,7 @@ class Indicator {
     drawBullets(shootsArr) {
         shootsArr.forEach((shot, indx) => {
             ctx.drawImage(this.img, this.x + ((this.imgWidth + 5) * indx), this.y + this.height + 5, this.imgWidth, this.imgHeight);
-        })
+        });
     }
+
 }
