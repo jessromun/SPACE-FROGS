@@ -61,10 +61,32 @@ function update() {
 }
 
 // Aux Functions ============================================================================================
-
-
 function clearCanvas() {
     ctx.clearRect(0, 0, $canvas.width, $canvas.height);
+}
+
+function randomNumber(range = 1, offset = 0, isRoundNeeded = true) {
+    if (isRoundNeeded) return Math.floor((Math.random() * range) + offset);
+    return (Math.random() * range) + offset;
+}
+
+function stopInterval(interval) {
+    window.cancelAnimationFrame(interval);
+    interval = null;
+}
+
+
+function isAlive(obj) {
+    return obj.health <= 0;
+}
+
+function healCharacter() {
+    if (score / 400 > 0 && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
+        console.log('score: ', score);
+        console.log(p1.health);
+        p1.health++;
+        console.log(p1.health);
+    }
 }
 
 // Enemies ==================================================================================================
@@ -89,11 +111,6 @@ function drawEnemies() {
     enemiesArr.forEach(e => e.draw());
 }
 
-function randomNumber(range = 1, offset = 0, isRoundNeeded = true) {
-    if (isRoundNeeded) return Math.floor((Math.random() * range) + offset);
-    return (Math.random() * range) + offset;
-}
-
 function cleanEnemies() {
     enemiesArr = enemiesArr.filter(e => e.y <= $canvas.height);
 }
@@ -101,11 +118,11 @@ function cleanEnemies() {
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
-}
+};
 
 document.onkeyup = e => {
     keys[e.key] = false;
-}
+};
 
 function checkKeys() {
     if (keys['ArrowUp']) {
@@ -140,24 +157,19 @@ function checkCrashEnemiesCharacter() {
     });
 }
 
-function stopInterval(interval) {
-    window.cancelAnimationFrame(interval);
-    interval = null;
+function checkFinalEnemyHealth() {
+    if (finalEnemy.length !== 0) {
+        if (finalEnemy[1].health === 0) {
+            let firstState = { p1, level, score, ampMovBoss };
+            defaultSettings();
+            p1 = firstState.p1;
+            score = firstState.score + 400;
+            nextLevel(firstState);
+        }
+    }
 }
 
-function gameOverDraw() {
-    const img = new Image();
-    img.src = '../images/gameOver.svg';
-    ctx.fillStyle = '#262338';
-    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
-    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
-    intervalIdOver = requestAnimationFrame(gameOverDraw);
-}
-
-function isAlive(obj) {
-    return obj.health <= 0;
-}
-
+// Game Over ================================================================================================
 function gameOver() {
     if (isAlive(p1)) {
         stopInterval(intervalIdGame);
@@ -169,6 +181,14 @@ function gameOver() {
     }
 }
 
+function gameOverDraw() {
+    const img = new Image();
+    img.src = '../images/gameOver.svg';
+    ctx.fillStyle = '#262338';
+    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
+    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+    intervalIdOver = requestAnimationFrame(gameOverDraw);
+}
 
 function gameOverStop() {
     cancelAnimationFrame(intervalIdGame);
@@ -203,6 +223,20 @@ function checkShootToEnemies() {
     }
 }
 
+function checkShootFinalEnemy() {
+    if (finalEnemy.length !== 0) {
+        shotsArr = shotsArr.filter(shot => {
+            if (finalEnemy[1].isTouching(shot)) {
+                if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
+                    finalEnemy[1].health--;
+                }
+                return false;
+            }
+            return true;
+        });
+    }
+}
+
 // Final Enemy Functions ====================================================================================
 function generateFinalEnemy() {
     if (enemiesCount === 2 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
@@ -219,44 +253,10 @@ function drawFinalEnemy() {
     }
 }
 
-function checkShootFinalEnemy() {
-    if (finalEnemy.length !== 0) {
-        shotsArr = shotsArr.filter(shot => {
-            if (finalEnemy[1].isTouching(shot)) {
-                if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
-                    finalEnemy[1].health--;
-                }
-                return false;
-            }
-            return true;
-        });
-    }
-}
-
-function checkFinalEnemyHealth() {
-    if (finalEnemy.length !== 0) {
-        if (finalEnemy[1].health === 0) {
-            let firstState = { p1, level, score, ampMovBoss };
-            defaultSettings();
-            p1 = firstState.p1;
-            score = firstState.score + 400;
-            nextLevel(firstState);
-        }
-    }
-}
-
+// New Level ================================================================================================
 function nextLevel(firstState) {
     level = firstState.level + 1;
     enemyHealth *= level;
     ampMovBoss *= level;
 
-}
-
-function healCharacter() {
-    if (score / 400 > 0 && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
-        console.log('score: ', score);
-        console.log(p1.health);
-        p1.health++;
-        console.log(p1.health);
-    }
 }
