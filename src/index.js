@@ -209,6 +209,7 @@ function checkShootToEnemies() {
                 p1.isFirstEnemyDestroyed = true;
                 p1.score += 10;
                 return false;
+                // sonido de destrucción
             }
             return true;
         });
