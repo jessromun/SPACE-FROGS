@@ -52,7 +52,7 @@ class FinalEnemy extends Enemy {
         this.gravity = 0.98;
         this.freq = freq;
         this.indicatorWidth = 400;
-        this.indicatorHeight = 5;
+        this.indicatorHeight = 15;
     }
 
     drawImage(amp) {

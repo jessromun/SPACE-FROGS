@@ -7,6 +7,9 @@ class Sounds {
         this.stageBossDies = new Audio('../../sounds/212764__qubodup__lion-roar.flac');
         this.stageBossPain = new Audio('../../sounds/492496__soundflakes__demon-death-03.wav');
         this.playerPain = new Audio('../../sounds/338145__artordie__scream-ugh.wav');
+        this.lowHealth = new Audio('../../sounds/485076__inspectorj__heartbeat-regular-single-01-01-loop.wav');
         this.newLevel = new Audio('../../sounds/27568__suonho__memorymoon-space-blaster-plays.wav');
+        this.musicGameOn = new Audio('../../sounds/Eric Skiff - A Night Of Dizzy Spells.mp3');
+        this.musicBossOn = new Audio('../../sounds/Joshua McLean - Mountain Trials.mp3');
     }
 }

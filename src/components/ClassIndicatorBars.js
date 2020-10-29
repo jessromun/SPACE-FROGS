@@ -11,8 +11,10 @@ class Indicator {
     }
 
     drawHealth(health, maxHealth = 5) {
+        ctx.fillStyle = 'crimson';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.fillStyle = 'forestgreen';
-        ctx.fillRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
+        ctx.fillRect(this.x - 1, this.y, (this.width * health) / maxHealth, this.height + 2);
         ctx.strokeStyle = "seagreen";
         ctx.strokeRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
     }
