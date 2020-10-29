@@ -1,6 +1,8 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 const board = new Board();
+const sounds = new Sounds();
+// sounds.intro.play(); // TODO: Descomentar al entregar
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
@@ -22,10 +24,12 @@ function defaultSettings() {
     p1.shotsPerSec = 5;
     p1.isFirstEnemyDestroyed = false;
     p1.score = 0;
-    indicators = new Indicator(5, $canvas.height - 50, 92, 5);
+    indicators = new Indicator(15, $canvas.height - 50, 92, 10);
     isOver = false;
     ampMovBoss = 0.01;
     level = 1;
+    stopSound(sounds.lowHealth);
+    stopSound(sounds.intro);
 }
 
 document.querySelector('#start').onclick = start;
@@ -33,6 +37,7 @@ document.querySelector('#start').onclick = start;
 function start() {
     if (intervalIdGame) return;
     defaultSettings();
+    sounds.musicGameOn.play();
     intervalIdGame = requestAnimationFrame(update);
 }
 
@@ -60,9 +65,10 @@ function update() {
     checkShootFinalEnemy();
     checkFinalEnemyHealth();
     gameOver();
+    if (p1.health === 1) { sounds.lowHealth.play(); } else { stopSound(sounds.lowHealth); }
     if (!isOver) {
         intervalIdGame = requestAnimationFrame(update);
-    }
+    } else { sounds.lowHealth.play(); }
 }
 
 // Aux Functions ============================================================================================
@@ -99,6 +105,11 @@ function drawIndicatorBars() {
     indicators.drawBullets(p1.shotsArr, p1.bullets);
 }
 
+function stopSound(obj) {
+    obj.pause();
+    obj.currentTime = 0;
+}
+
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
@@ -125,6 +136,14 @@ function checkKeys() {
         if (frames % (60 / p1.shotsPerSec) === 0) { // para disparar 5 veces ps
             if (p1.shotsArr.length < p1.bullets) {
                 p1.shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
+                if (p1.isFirstSoundPlayed) {
+                    stopSound(sounds.shot[1]);
+                    sounds.shot[1].play();
+                } else {
+                    stopSound(sounds.shot[0]);
+                    sounds.shot[0].play();
+                }
+                p1.isFirstSoundPlayed = !p1.isFirstSoundPlayed;
             }
         }
     }
@@ -160,6 +179,8 @@ function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
             p1.health--;
+            stopSound(sounds.playerPain);
+            sounds.playerPain.play();
             return false;
         }
         return true;
@@ -169,9 +190,13 @@ function checkCrashEnemiesCharacter() {
 // Final Enemy Functions ====================================================================================
 // TODO: cuando haya un nuevo nivel, resetear todo para que el jefe aparezca cuando deba.
 function generateFinalEnemy() {
-    if (enemiesCount === 2 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
+    if (enemiesCount === 6 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
         finalEnemy.push(new FinalEnemy(300, 300, enemyHealth)); // * El que se verá
         finalEnemy.push(new FinalEnemy(200, 220, enemyHealth)); // * El que recibirá daño.
+        stopSound(sounds.stageBossScream);
+        sounds.stageBossScream.play();
+        stopSound(sounds.musicGameOn);
+        sounds.musicBossOn.play();
     }
 }
 
@@ -191,6 +216,7 @@ function checkFinalEnemyHealth() {
             board.draw();
             defaultSettings();
             nextLevel(pastState);
+            sounds.stageBossDies.play();
         }
     }
 }
@@ -211,8 +237,14 @@ function checkShootToEnemies() {
             if (enemy.isTouching(shot)) {
                 p1.isFirstEnemyDestroyed = true;
                 p1.score += 10;
+                stopSound(sounds.enemiesScream);
+                sounds.enemiesScream.play();
+                stopSound(sounds.destruction[0]);
+                stopSound(sounds.destruction[1]);
+                sounds.destruction[0].play();
+                sounds.destruction[1].play();
+
                 return false;
-                // sonido de destrucción
             }
             return true;
         });
@@ -231,6 +263,8 @@ function checkShootFinalEnemy() {
             if (finalEnemy[1].isTouching(shot)) {
                 if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
                     finalEnemy[1].health--;
+                    stopSound(sounds.stageBossPain);
+                    sounds.stageBossPain.play();
                 }
                 return false;
             }
@@ -247,6 +281,10 @@ function gameOver() {
         console.log('score: ', p1.score);
         defaultSettings();
         intervalIdOver = requestAnimationFrame(gameOverDraw);
+        stopSound(sounds.musicGameOn);
+        stopSound(sounds.musicBossOn);
+        sounds.intro.play();
+        sounds.lowHealth.play();
         isOver = true;
     }
 }
@@ -254,9 +292,7 @@ function gameOver() {
 function gameOverDraw() {
     const img = new Image();
     img.src = '../images/gameOver.svg';
-    ctx.fillStyle = '#262338';
-    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
-    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
+    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
     intervalIdOver = requestAnimationFrame(gameOverDraw);
 }
 
@@ -270,6 +306,10 @@ function nextLevel(firstState) {
     p1 = firstState.p1;
     p1.score += 400;
     level = firstState.level + 1;
+    sounds.newLevel.play();
+    stopSound(sounds.musicBossOn);
+    stopSound(sounds.musicGameOn);
+    sounds.musicGameOn.play();
     enemyHealth *= level;
     ampMovBoss *= (level + 1);
 }
