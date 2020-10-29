@@ -50,7 +50,7 @@ class FinalEnemy extends Enemy {
         this.maxHealth = health;
         this.gravity = 0.98;
         this.freq = freq;
-        this.indicatorWidth = 600;
+        this.indicatorWidth = 400;
         this.indicatorHeight = 5;
     }
 
@@ -69,6 +69,7 @@ class FinalEnemy extends Enemy {
         const img = new Image();
         if (this.canReceiveDamage(y)) {
             this.updateX(true, amp);
+            this.drawHealth();
         }
         ctx.drawImage(img, this.x, this.y, this.width, this.height);
     }
@@ -79,6 +80,9 @@ class FinalEnemy extends Enemy {
 
     drawHealth() {
         ctx.fillStyle = 'forestgreen';
-        ctx.fillRect(this.x, this.y, (this.indicatorWidth * this.health) / this.maxHealth, this.indicatorHeight);
+        ctx.strokeStyle = "seagreen";
+        let barWidth = (this.indicatorWidth * this.health) / this.maxHealth;
+        ctx.fillRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
+        ctx.strokeRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
     }
 }

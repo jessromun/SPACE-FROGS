@@ -21,7 +21,7 @@ function defaultSettings() {
     p1.shotsPerSec = 5;
     p1.isFirstEnemyDestroyed = false;
     p1.score = 0;
-    indicators = new Indicator(5, $canvas.height - 50, 100, 10);
+    indicators = new Indicator(5, $canvas.height - 50, 92, 5);
     isOver = false;
     ampMovBoss = 0.01;
     level = 1;
