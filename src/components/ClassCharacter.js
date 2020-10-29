@@ -10,6 +10,12 @@ class Character {
         this.velX = 5;
         this.gravity = 1.5;
         this.health = 5;
+        this.bullets = 5;
+        this.shotsPerSec = 5;
+        this.shotsArr = [];
+        this.isFirstEnemyDestroyed = false;
+        this.score = 0;
+        this.prevScore = 0;
     }
 
     draw() {
