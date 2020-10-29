@@ -15,10 +15,10 @@ class Indicator {
         ctx.fillRect(this.x, this.y, (this.width * health) / maxHealth, this.height); // 
     }
 
-    drawBullets(shootsArr) {
-        shootsArr.forEach((shot, indx) => {
-            ctx.drawImage(this.img, this.x + ((this.imgWidth + 5) * indx), this.y + this.height + 5, this.imgWidth, this.imgHeight);
-        });
+    drawBullets(shootsArr, bullets) {
+        for (let i = 0; i < bullets - shootsArr.length; i++) {
+            ctx.drawImage(this.img, this.x + ((this.imgWidth + 5) * i), this.y + this.height + 5, this.imgWidth, this.imgHeight);
+        }
     }
 
 }
