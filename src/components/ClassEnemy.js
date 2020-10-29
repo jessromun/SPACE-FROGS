@@ -47,8 +47,11 @@ class FinalEnemy extends Enemy {
         this.y = - this.height;
         this.img.src = '../../images/Untitled-3.svg';
         this.health = health;
+        this.maxHealth = health;
         this.gravity = 0.98;
         this.freq = freq;
+        this.indicatorWidth = 600;
+        this.indicatorHeight = 5;
     }
 
     drawImage(amp) {
@@ -72,5 +75,10 @@ class FinalEnemy extends Enemy {
 
     canReceiveDamage(y) {
         return y === 25;
+    }
+
+    drawHealth() {
+        ctx.fillStyle = 'forestgreen';
+        ctx.fillRect(this.x, this.y, (this.indicatorWidth * this.health) / this.maxHealth, this.indicatorHeight);
     }
 }
