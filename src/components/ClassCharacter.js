@@ -15,8 +15,8 @@ class Character {
     draw() {
         if (this.y < 0) this.y = 0;
         if (this.y > $canvas.height - this.height) this.y = $canvas.height - this.height;
-        if (this.x < 0) this.x = $canvas.width;
-        if (this.x > $canvas.width) this.x = 0;
+        if (this.x < -this.width / 2) this.x = $canvas.width - this.width / 2;
+        if (this.x > $canvas.width - this.width / 2) this.x = -this.width / 2;
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
