@@ -1,6 +1,9 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 const board = new Board();
+const intro = new Intro();
+const instructions = new Instructions();
+let countSpaceBar = 0;
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
@@ -120,11 +123,29 @@ function cleanEnemies() {
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
+    switch (countSpaceBar){
+        case 0 : 
+                 countSpaceBar++;
+        break;
+        case 1: clearCanvas();
+                intro.draw()
+                countSpaceBar++;
+        break;
+        case 2: clearCanvas();
+                instructions.draw()
+                countSpaceBar++;
+        break;
+        case 3: start(); 
+}
 };
+
 
 document.onkeyup = e => {
     keys[e.key] = false;
 };
+
+   
+
 
 function checkKeys() {
     if (keys['ArrowUp']) {
