@@ -188,6 +188,7 @@ function checkFinalEnemyHealth() {
         if (finalEnemy[1].health === 0) {
             let pastState = { p1, level, ampMovBoss };
             clearCanvas();
+            board.draw();
             defaultSettings();
             nextLevel(pastState);
         }
