@@ -1,5 +1,6 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
+const board = new Board();
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
@@ -47,6 +48,7 @@ function update() {
     cleanShots();
     clearCanvas();
     //3. Draw.
+    board.draw();
     drawEnemies();
     drawFinalEnemy();
     p1.draw();

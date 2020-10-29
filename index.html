@@ -5,11 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPACE FROGS</title>
+    <link rel="StyleSheet" href="/styles/style.css">
 </head>
 
 <body>
-    <canvas width="600" height="800" style="border: 2px solid black;"></canvas>
-    <button id="start">Start</button>
+     <div class="container">
+        <button id = "start"><img src="../../images/startBtn.svg"
+        style= "width:100 px; height: 60px">
+        </button>
+        <div id="board">
+            <canvas id="canvas" width="600" height="800" style="border: 2px solid black;"></canvas>
+    </div>
+    <script src="src/components/classBoard.js"></script>
     <script src="src/components/ClassEnemy.js"></script>
     <script src="src/components/ClassCharacter.js"></script>
     <script src="src/components/ClassShot.js"></script>

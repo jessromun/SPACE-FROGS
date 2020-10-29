@@ -1,0 +1,37 @@
+body{
+  padding: 0;
+  text-align: center;
+  background-color: #24243c
+}
+
+@font-family{
+font-family: "space_comics";
+  src: url('\\LAPTOP-EPNGRSF9\Users\IVET\Downloads\space_comics.ttf')
+}
+
+h1{
+ color: white;
+} 
+
+#canvas{
+background-image:url(/images/intro.svg); 
+display: block;
+margin: 0 auto;
+
+
+}
+
+#start { 
+display:absolute;
+display:flexbox;
+align-items: center;
+justify-content: center;
+background-color:transparent;
+float: middle;
+position: relative;
+top: 300;
+cursor: pointer;
+border: none;
+margin: 0;
+padding: 0;
+text-align: center;
