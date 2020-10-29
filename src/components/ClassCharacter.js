@@ -16,6 +16,7 @@ class Character {
         this.isFirstEnemyDestroyed = false;
         this.score = 0;
         this.prevScore = 0;
+        this.isFirstSoundPlayed = false;
     }
 
     draw() {

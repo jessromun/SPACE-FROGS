@@ -1,6 +1,7 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 const board = new Board();
+const sounds = new Sounds();
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
@@ -125,6 +126,13 @@ function checkKeys() {
         if (frames % (60 / p1.shotsPerSec) === 0) { // para disparar 5 veces ps
             if (p1.shotsArr.length < p1.bullets) {
                 p1.shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
+                if (p1.isFirstSoundPlayed) {
+                    sounds.shot[1].play();
+                } else {
+                    console.log(p1.isFirstSoundPlayed)
+                    sounds.shot[0].play();
+                }
+                p1.isFirstSoundPlayed = !p1.isFirstSoundPlayed;
             }
         }
     }
@@ -160,6 +168,7 @@ function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
             p1.health--;
+            sounds.playerPain.play();
             return false;
         }
         return true;
@@ -169,9 +178,10 @@ function checkCrashEnemiesCharacter() {
 // Final Enemy Functions ====================================================================================
 // TODO: cuando haya un nuevo nivel, resetear todo para que el jefe aparezca cuando deba.
 function generateFinalEnemy() {
-    if (enemiesCount === 2 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
+    if (enemiesCount === 6 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
         finalEnemy.push(new FinalEnemy(300, 300, enemyHealth)); // * El que se verá
         finalEnemy.push(new FinalEnemy(200, 220, enemyHealth)); // * El que recibirá daño.
+        sounds.stageBossScream.play();
     }
 }
 
@@ -191,6 +201,7 @@ function checkFinalEnemyHealth() {
             board.draw();
             defaultSettings();
             nextLevel(pastState);
+            sounds.stageBossDies.play();
         }
     }
 }
@@ -211,8 +222,11 @@ function checkShootToEnemies() {
             if (enemy.isTouching(shot)) {
                 p1.isFirstEnemyDestroyed = true;
                 p1.score += 10;
+                sounds.enemiesScream.play();
+                sounds.destruction[0].play();
+                sounds.destruction[1].play();
+
                 return false;
-                // sonido de destrucción
             }
             return true;
         });
@@ -231,6 +245,7 @@ function checkShootFinalEnemy() {
             if (finalEnemy[1].isTouching(shot)) {
                 if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
                     finalEnemy[1].health--;
+                    sounds.stageBossPain.play();
                 }
                 return false;
             }
@@ -270,6 +285,7 @@ function nextLevel(firstState) {
     p1 = firstState.p1;
     p1.score += 400;
     level = firstState.level + 1;
+    sounds.newLevel.play();
     enemyHealth *= level;
     ampMovBoss *= (level + 1);
 }

@@ -8,6 +8,7 @@ class Enemy {
         this.img.src = '../../images/spaceShip.svg';
         this.freq = freq;
         this.gravity = gravity;
+        this.destructionSound = new Audio('../../sounds/322509__liamg-sfx__explosion-2.wav');
     }
 
     draw() {
