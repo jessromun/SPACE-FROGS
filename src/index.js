@@ -5,6 +5,10 @@ let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
 // TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
 let frames, p1, enemiesArr, enemiesCount, finalEnemy = [], enemyHealth = 20, shotsArr, bullets = 5, shotsPerSec = 5, score, isOver = false, ampMovBoss = 0.01, level = 1;
+const intro = new Intro();
+const board = new Board();
+
+let countSpaceBar = 0;
 
 function defaultSettings() {
     intervalIdGame = null;
@@ -118,6 +122,20 @@ function cleanEnemies() {
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
+    switch (countSpaceBar){
+        case 0 : clearCanvas();
+        intro.draw();
+        countSpaceBar ++
+        break;
+        case 1: clearCanvas();
+                intro.draw();
+                countSpaceBar ++
+        break;
+        case 2: clearCanvas();
+        instructions.draw()
+        countSpaceBar ++
+        break;
+        case 3: start(); }
 };
 
 document.onkeyup = e => {
