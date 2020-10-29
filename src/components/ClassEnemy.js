@@ -47,8 +47,11 @@ class FinalEnemy extends Enemy {
         this.y = - this.height;
         this.img.src = '../../images/Untitled-3.svg';
         this.health = health;
+        this.maxHealth = health;
         this.gravity = 0.98;
         this.freq = freq;
+        this.indicatorWidth = 400;
+        this.indicatorHeight = 5;
     }
 
     drawImage(amp) {
@@ -66,11 +69,20 @@ class FinalEnemy extends Enemy {
         const img = new Image();
         if (this.canReceiveDamage(y)) {
             this.updateX(true, amp);
+            this.drawHealth();
         }
         ctx.drawImage(img, this.x, this.y, this.width, this.height);
     }
 
     canReceiveDamage(y) {
         return y === 25;
+    }
+
+    drawHealth() {
+        ctx.fillStyle = 'forestgreen';
+        ctx.strokeStyle = "seagreen";
+        let barWidth = (this.indicatorWidth * this.health) / this.maxHealth;
+        ctx.fillRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
+        ctx.strokeRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
     }
 }

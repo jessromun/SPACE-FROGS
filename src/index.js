@@ -5,7 +5,7 @@ const board = new Board();
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
 // TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
-let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, isOver = false, ampMovBoss = 0.01, level = 1;
+let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.01, level = 1;
 
 function defaultSettings() {
     intervalIdGame = null;
@@ -22,6 +22,7 @@ function defaultSettings() {
     p1.shotsPerSec = 5;
     p1.isFirstEnemyDestroyed = false;
     p1.score = 0;
+    indicators = new Indicator(5, $canvas.height - 50, 92, 5);
     isOver = false;
     ampMovBoss = 0.01;
     level = 1;
@@ -53,6 +54,7 @@ function update() {
     drawFinalEnemy();
     p1.draw();
     drawShots();
+    drawIndicatorBars();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
     checkShootFinalEnemy();
@@ -90,6 +92,11 @@ function healCharacter() {
         p1.health++;
         console.log(p1.health);
     }
+}
+
+function drawIndicatorBars() {
+    indicators.drawHealth(p1.health);
+    indicators.drawBullets(p1.shotsArr, p1.bullets);
 }
 
 // Controls =================================================================================================
@@ -204,6 +211,7 @@ function checkShootToEnemies() {
                 p1.isFirstEnemyDestroyed = true;
                 p1.score += 10;
                 return false;
+                // sonido de destrucción
             }
             return true;
         });
