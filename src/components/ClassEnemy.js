@@ -8,7 +8,6 @@ class Enemy {
         this.img.src = '../../images/spaceShip.svg';
         this.freq = freq;
         this.gravity = gravity;
-        this.destructionSound = new Audio('../../sounds/322509__liamg-sfx__explosion-2.wav');
     }
 
     draw() {
@@ -46,7 +45,9 @@ class FinalEnemy extends Enemy {
         this.height = height;
         this.x = $canvas.width / 2 - this.width / 2;
         this.y = - this.height;
-        this.img.src = '../../images/Untitled-3.svg';
+        this.img = [new Image(), new Image()];
+        this.img[0].src = '../../images/bossEnemyLeft.svg';
+        this.img[1].src = '../../images/bossEnemyRight.svg';
         this.health = health;
         this.maxHealth = health;
         this.gravity = 0.98;
@@ -57,11 +58,15 @@ class FinalEnemy extends Enemy {
 
     drawImage(amp) {
         this.y += this.gravity;
+        let xBefore = this.x, index = 0;
         if (this.y > 25) {
             this.y = 25;
             this.updateX(true, amp);
         };
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+        if (xBefore < this.x) {
+            index = 1;
+        }
+        ctx.drawImage(this.img[index], this.x, this.y, this.width, this.height);
     }
 
     drawDamageReceiver(y, amp) {
