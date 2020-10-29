@@ -1,12 +1,11 @@
+@import url("Space\ Comics.ttf");
+@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
 body {
   padding: 0;
   text-align: center;
   background-color: #24243c;
-}
-
-@font-family {
-  font-family: "space_comics";
-  src: url("\\LAPTOP-EPNGRSF9\Users\IVET\Downloads\space_comics.ttf");
+  font-family: "Space Comics", "VT323", monospace;
 }
 
 h1 {

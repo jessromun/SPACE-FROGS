@@ -2,6 +2,7 @@ const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 const board = new Board();
 const sounds = new Sounds();
+// sounds.intro.play(); // TODO: Descomentar al entregar
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
@@ -28,6 +29,7 @@ function defaultSettings() {
     ampMovBoss = 0.01;
     level = 1;
     stopSound(sounds.lowHealth);
+    stopSound(sounds.intro);
 }
 
 document.querySelector('#start').onclick = start;
@@ -281,6 +283,7 @@ function gameOver() {
         intervalIdOver = requestAnimationFrame(gameOverDraw);
         stopSound(sounds.musicGameOn);
         stopSound(sounds.musicBossOn);
+        sounds.intro.play();
         sounds.lowHealth.play();
         isOver = true;
     }

@@ -11,5 +11,6 @@ class Sounds {
         this.newLevel = new Audio('../../sounds/27568__suonho__memorymoon-space-blaster-plays.wav');
         this.musicGameOn = new Audio('../../sounds/Eric Skiff - A Night Of Dizzy Spells.mp3');
         this.musicBossOn = new Audio('../../sounds/Joshua McLean - Mountain Trials.mp3');
+        this.intro = new Audio('../../sounds/256269__jmayoff__space-ship-atmosphere.wav');
     }
 }
