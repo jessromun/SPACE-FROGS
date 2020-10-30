@@ -10,7 +10,7 @@ class PowerUps {
         this.shieldImg = new Image();
         this.shieldImg.src = '../../images/shield.svg';
         this.fireImg = new Image();
-        this.fireImg.src = '../../images/shield.svg';
+        this.fireImg.src = '../../images/heart.svg';
         this.type = type;
         this.draw = this.defineDraw(this.type); // draws the respective type
 
@@ -36,7 +36,7 @@ class PowerUps {
             case 2:
                 return this.drawShield;
             case 3:
-
+                return this.drawFire;
             default:
                 return () => {
                     let img = new Image();

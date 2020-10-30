@@ -104,7 +104,7 @@ function stopSound(obj) {
 }
 
 function drawIndicatorBars() {
-    indicators.drawHealth(p1.health, p1.canReceiveDamage);
+    indicators.drawHealth(p1.health, p1.canReceiveDamage, p1.bullets);
     indicators.drawBullets(p1.shotsArr, p1.bullets);
     indicators.drawScoreAndLevel(p1.score, level);
 }
@@ -112,11 +112,11 @@ function drawIndicatorBars() {
 
 // Power Ups ================================================================================================
 function generatePowerUps() {
-    const howManySecsToGen = 20;
+    const howManySecsToGen = 2;
     if (frames % (60 * howManySecsToGen) === 0 && frames) {
         let xPos = randomNumber($canvas.width);
         let gravity = randomNumber(5, 0.5, false);
-        powerUp.push(new PowerUps(xPos, gravity, 2));
+        powerUp.push(new PowerUps(xPos, gravity, 3));
     }
 }
 
@@ -148,7 +148,16 @@ function checkPowerUps() {
                 }
                 return true;
             case 3: // ammo
-
+                if (p1.isTouching(pu)) {
+                    p1.shotsPerSec = 15;
+                    p1.fireTimeStart = frames;
+                    p1.bullets = 500;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    sounds.clock.play();
+                    return false;
+                }
+                return true;
             default: // nothing
                 break;
         }
@@ -162,7 +171,8 @@ function checkPowerUpsTimers() {
         stopSound(sounds.clock);
     }
     if ((p1.fireTimeStart + (60 * 5)) < frames) {
-        p1.canReceiveDamage = true;
+        p1.shotsPerSec = 5;
+        p1.bullets = 5;
         stopSound(sounds.clock);
     }
 }
@@ -176,11 +186,11 @@ document.onkeydown = e => {
                 countSpaceBar++;
                 break;
             case 1: clearCanvas();
-                intro.draw()
+                intro.draw();
                 countSpaceBar++;
                 break;
             case 2: clearCanvas();
-                instructions.draw()
+                instructions.draw();
                 countSpaceBar++;
                 break;
             case 3: start();
