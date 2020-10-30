@@ -24,7 +24,7 @@ function defaultSettings() {
     p1.shotsPerSec = 5;
     p1.isFirstEnemyDestroyed = false;
     p1.score = 0;
-    indicators = new Indicator(15, $canvas.height - 50, 92, 10);
+    indicators = new Indicator(15, $canvas.height - 60, 196, 15);
     isOver = false;
     ampMovBoss = 0.01;
     level = 1;
@@ -103,6 +103,7 @@ function healCharacter() {
 function drawIndicatorBars() {
     indicators.drawHealth(p1.health);
     indicators.drawBullets(p1.shotsArr, p1.bullets);
+    indicators.drawScoreAndLevel(p1.score, level);
 }
 
 function stopSound(obj) {
