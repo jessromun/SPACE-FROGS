@@ -4,29 +4,35 @@ const board = new Board();
 const intro = new Intro();
 const instructions = new Instructions();
 let countSpaceBar = 0;
+const sounds = new Sounds();
+// sounds.intro.play(); // TODO: Descomentar al entregar
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
 // TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
-let frames, p1, enemiesArr, enemiesCount, finalEnemy = [], enemyHealth = 20, shotsArr, bullets = 5, shotsPerSec = 5, score, isOver = false, ampMovBoss = 0.01, level = 1;
+let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.01, level = 1;
 
 function defaultSettings() {
     intervalIdGame = null;
     stopInterval(intervalIdOver);
     keys.length = 0;
     frames = 0;
-    p1 = new Character();
-    enemiesArr = [];
+    enemiesArr.length = 0;
     enemiesCount = 1;
-    finalEnemy = [];
+    finalEnemy.length = 0;
     enemyHealth = 20;
-    shotsArr = [];
-    bullets = 5;
-    shotsPerSec = 5;
-    score = 0;
+    p1 = new Character();
+    p1.shotsArr = [];
+    p1.bullets = 5;
+    p1.shotsPerSec = 5;
+    p1.isFirstEnemyDestroyed = false;
+    p1.score = 0;
+    indicators = new Indicator(15, $canvas.height - 60, 196, 15);
     isOver = false;
     ampMovBoss = 0.01;
     level = 1;
+    stopSound(sounds.lowHealth);
+    stopSound(sounds.intro);
 }
 
 document.querySelector('#start').onclick = start;
@@ -34,6 +40,7 @@ document.querySelector('#start').onclick = start;
 function start() {
     if (intervalIdGame) return;
     defaultSettings();
+    sounds.musicGameOn.play();
     intervalIdGame = requestAnimationFrame(update);
 }
 
@@ -55,14 +62,16 @@ function update() {
     drawFinalEnemy();
     p1.draw();
     drawShots();
+    drawIndicatorBars();
     checkCrashEnemiesCharacter();
-    checkFinalEnemyHealth();
     checkShootToEnemies();
     checkShootFinalEnemy();
+    checkFinalEnemyHealth();
     gameOver();
+    if (p1.health === 1) { sounds.lowHealth.play(); } else { stopSound(sounds.lowHealth); }
     if (!isOver) {
         intervalIdGame = requestAnimationFrame(update);
-    }
+    } else { sounds.lowHealth.play(); }
 }
 
 // Aux Functions ============================================================================================
@@ -86,38 +95,23 @@ function isAlive(obj) {
 }
 
 function healCharacter() {
-    if (score / 400 > 0 && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
-        console.log('score: ', score);
+    if (p1.score % 400 === 0 && p1.score && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
+        console.log('score: ', p1.score);
         console.log(p1.health);
         p1.health++;
         console.log(p1.health);
     }
 }
 
-// Enemies ==================================================================================================
-function generateEnemies() {
-    if (enemiesArr.length < enemiesCount) {
-        let initWidth = randomNumber(46, 94);
-        let initHeight = randomNumber(25, 50);
-        let initX = randomNumber($canvas.width - initWidth, initWidth);
-        let initY = - randomNumber(initHeight);
-        let initFreq = randomNumber(0.2, 0.04, false);
-        let initGravity = randomNumber(2, 0.5, false);
-        if (enemiesCount > 4 && enemiesCount <= 8) {
-            initGravity = randomNumber(5, 0.98, false);
-        } else if (enemiesCount > 8 || finalEnemy.length > 0) {
-            initGravity = randomNumber(7, 1.2, false);
-        }
-        enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
-    }
+function drawIndicatorBars() {
+    indicators.drawHealth(p1.health);
+    indicators.drawBullets(p1.shotsArr, p1.bullets);
+    indicators.drawScoreAndLevel(p1.score, level);
 }
 
-function drawEnemies() {
-    enemiesArr.forEach(e => e.draw());
-}
-
-function cleanEnemies() {
-    enemiesArr = enemiesArr.filter(e => e.y <= $canvas.height);
+function stopSound(obj) {
+    obj.pause();
+    obj.currentTime = 0;
 }
 
 // Controls =================================================================================================
@@ -161,110 +155,70 @@ function checkKeys() {
         p1.x += p1.velX;
     }
     if (keys[' ']) {
-        if (frames % (60 / shotsPerSec) === 0) { // para disparar 5 veces ps
-            if (shotsArr.length < bullets) {
-                shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
+        if (frames % (60 / p1.shotsPerSec) === 0) { // para disparar 5 veces ps
+            if (p1.shotsArr.length < p1.bullets) {
+                p1.shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
+                if (p1.isFirstSoundPlayed) {
+                    stopSound(sounds.shot[1]);
+                    sounds.shot[1].play();
+                } else {
+                    stopSound(sounds.shot[0]);
+                    sounds.shot[0].play();
+                }
+                p1.isFirstSoundPlayed = !p1.isFirstSoundPlayed;
             }
         }
     }
 }
 
-// Check Elements ===========================================================================================
+// Enemies ==================================================================================================
+function generateEnemies() {
+    if (enemiesArr.length < enemiesCount) {
+        let initWidth = randomNumber(46, 94);
+        let initHeight = randomNumber(25, 50);
+        let initX = randomNumber($canvas.width - initWidth, initWidth);
+        let initY = - randomNumber(initHeight);
+        let initFreq = randomNumber(0.2, 0.04, false);
+        let initGravity = randomNumber(2, 0.5, false);
+        if (enemiesCount > 4 && enemiesCount <= 8) {
+            initGravity = randomNumber(5, 0.98, false);
+        } else if (enemiesCount > 8 || finalEnemy.length > 0) {
+            initGravity = randomNumber(7, 1.2, false);
+        }
+        enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
+    }
+}
+
+function drawEnemies() {
+    enemiesArr.forEach(e => e.draw());
+}
+
+function cleanEnemies() {
+    enemiesArr = enemiesArr.filter(e => e.y <= $canvas.height);
+}
+
 function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
             p1.health--;
+            stopSound(sounds.playerPain);
+            sounds.playerPain.play();
             return false;
         }
         return true;
     });
 }
 
-function checkFinalEnemyHealth() {
-    if (finalEnemy.length !== 0) {
-        if (finalEnemy[1].health === 0) {
-            let firstState = { p1, level, score, ampMovBoss };
-            defaultSettings();
-            p1 = firstState.p1;
-            score = firstState.score + 400;
-            nextLevel(firstState);
-        }
-    }
-}
-
-// Game Over ================================================================================================
-function gameOver() {
-    if (isAlive(p1)) {
-        stopInterval(intervalIdGame);
-        clearCanvas();
-        console.log('score: ', score);
-        defaultSettings();
-        intervalIdOver = requestAnimationFrame(gameOverDraw);
-        isOver = true;
-    }
-}
-
-function gameOverDraw() {
-    const img = new Image();
-    img.src = '../images/gameOver.svg';
-    ctx.fillStyle = '#262338';
-    ctx.fillRect(0, 0, $canvas.width, $canvas.height);
-    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 4, $canvas.width / 2, $canvas.height / 2);
-    intervalIdOver = requestAnimationFrame(gameOverDraw);
-}
-
-function gameOverStop() {
-    cancelAnimationFrame(intervalIdGame);
-    intervalIdGame = null;
-}
-
-// Shoot Enemies ============================================================================================
-function drawShots() {
-    shotsArr.forEach(shot => shot.draw());
-}
-
-function cleanShots() {
-    shotsArr = shotsArr.filter(shot => shot.y >= -shot.height);
-}
-
-function checkShootToEnemies() {
-    shotsArr = shotsArr.filter(shot => {
-        let enemiesLen = enemiesArr.length;
-        enemiesArr = enemiesArr.filter(enemy => {
-            if (enemy.isTouching(shot)) {
-                score += 10;
-                return false;
-            }
-            return true;
-        });
-        if (enemiesLen !== enemiesArr.length) return false;
-        return true;
-    });
-    if (Math.sqrt(frames / 25) % 1 === 0 && score) {
-        if (enemiesCount < 20) enemiesCount++;
-        console.log(enemiesCount)
-    }
-}
-
-function checkShootFinalEnemy() {
-    if (finalEnemy.length !== 0) {
-        shotsArr = shotsArr.filter(shot => {
-            if (finalEnemy[1].isTouching(shot)) {
-                if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
-                    finalEnemy[1].health--;
-                }
-                return false;
-            }
-            return true;
-        });
-    }
-}
-
 // Final Enemy Functions ====================================================================================
+// TODO: cuando haya un nuevo nivel, resetear todo para que el jefe aparezca cuando deba.
 function generateFinalEnemy() {
-    if (enemiesCount === 2 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
+    if (enemiesCount === 6 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
         finalEnemy.push(new FinalEnemy(300, 300, enemyHealth)); // * El que se verá
-        finalEnemy.push(new FinalEnemy(240, 220, enemyHealth)); // * El que recibirá daño.
+        finalEnemy.push(new FinalEnemy(200, 220, enemyHealth)); // * El que recibirá daño.
+        stopSound(sounds.stageBossScream);
+        sounds.stageBossScream.play();
+        stopSound(sounds.musicGameOn);
+        sounds.musicBossOn.play();
     }
 }
 
@@ -276,9 +230,108 @@ function drawFinalEnemy() {
     }
 }
 
+function checkFinalEnemyHealth() {
+    if (finalEnemy.length !== 0) {
+        if (finalEnemy[1].health === 0) {
+            let pastState = { p1, level, ampMovBoss };
+            clearCanvas();
+            board.draw();
+            defaultSettings();
+            nextLevel(pastState);
+            sounds.stageBossDies.play();
+        }
+    }
+}
+
+// Shoot Enemies ============================================================================================
+function drawShots() {
+    p1.shotsArr.forEach(shot => shot.draw());
+}
+
+function cleanShots() {
+    p1.shotsArr = p1.shotsArr.filter(shot => shot.y >= -shot.height);
+}
+
+function checkShootToEnemies() {
+    p1.shotsArr = p1.shotsArr.filter(shot => {
+        let enemiesLen = enemiesArr.length;
+        enemiesArr = enemiesArr.filter(enemy => {
+            if (enemy.isTouching(shot)) {
+                p1.isFirstEnemyDestroyed = true;
+                p1.score += 10;
+                stopSound(sounds.enemiesScream);
+                sounds.enemiesScream.play();
+                stopSound(sounds.destruction[0]);
+                stopSound(sounds.destruction[1]);
+                sounds.destruction[0].play();
+                sounds.destruction[1].play();
+
+                return false;
+            }
+            return true;
+        });
+        if (enemiesLen !== enemiesArr.length) return false;
+        return true;
+    });
+    if (Math.sqrt(frames / 25) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
+        if (enemiesCount < 20) enemiesCount++;
+        console.log(enemiesCount)
+    }
+}
+
+function checkShootFinalEnemy() {
+    if (finalEnemy.length !== 0) {
+        p1.shotsArr = p1.shotsArr.filter(shot => {
+            if (finalEnemy[1].isTouching(shot)) {
+                if (finalEnemy[1].canReceiveDamage(finalEnemy[0].y)) {
+                    finalEnemy[1].health--;
+                    stopSound(sounds.stageBossPain);
+                    sounds.stageBossPain.play();
+                }
+                return false;
+            }
+            return true;
+        });
+    }
+}
+
+// Game Over ================================================================================================
+function gameOver() {
+    if (isAlive(p1)) {
+        stopInterval(intervalIdGame);
+        clearCanvas();
+        console.log('score: ', p1.score);
+        defaultSettings();
+        intervalIdOver = requestAnimationFrame(gameOverDraw);
+        stopSound(sounds.musicGameOn);
+        stopSound(sounds.musicBossOn);
+        sounds.intro.play();
+        sounds.lowHealth.play();
+        isOver = true;
+    }
+}
+
+function gameOverDraw() {
+    const img = new Image();
+    img.src = '../images/gameOver.svg';
+    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
+    intervalIdOver = requestAnimationFrame(gameOverDraw);
+}
+
+function gameOverStop() {
+    cancelAnimationFrame(intervalIdGame);
+    intervalIdGame = null;
+}
+
 // New Level ================================================================================================
 function nextLevel(firstState) {
+    p1 = firstState.p1;
+    p1.score += 400;
     level = firstState.level + 1;
+    sounds.newLevel.play();
+    stopSound(sounds.musicBossOn);
+    stopSound(sounds.musicGameOn);
+    sounds.musicGameOn.play();
     enemyHealth *= level;
-    ampMovBoss *= level;
+    ampMovBoss *= (level + 1);
 }

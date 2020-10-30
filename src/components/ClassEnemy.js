@@ -45,19 +45,28 @@ class FinalEnemy extends Enemy {
         this.height = height;
         this.x = $canvas.width / 2 - this.width / 2;
         this.y = - this.height;
-        this.img.src = '../../images/Untitled-3.svg';
+        this.img = [new Image(), new Image()];
+        this.img[0].src = '../../images/bossEnemyLeft.svg';
+        this.img[1].src = '../../images/bossEnemyRight.svg';
         this.health = health;
+        this.maxHealth = health;
         this.gravity = 0.98;
         this.freq = freq;
+        this.indicatorWidth = 400;
+        this.indicatorHeight = 15;
     }
 
     drawImage(amp) {
         this.y += this.gravity;
+        let xBefore = this.x, index = 0;
         if (this.y > 25) {
             this.y = 25;
             this.updateX(true, amp);
         };
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+        if (xBefore < this.x) {
+            index = 1;
+        }
+        ctx.drawImage(this.img[index], this.x, this.y, this.width, this.height);
     }
 
     drawDamageReceiver(y, amp) {
@@ -66,11 +75,20 @@ class FinalEnemy extends Enemy {
         const img = new Image();
         if (this.canReceiveDamage(y)) {
             this.updateX(true, amp);
+            this.drawHealth();
         }
         ctx.drawImage(img, this.x, this.y, this.width, this.height);
     }
 
     canReceiveDamage(y) {
         return y === 25;
+    }
+
+    drawHealth() {
+        ctx.fillStyle = 'forestgreen';
+        ctx.strokeStyle = "seagreen";
+        let barWidth = (this.indicatorWidth * this.health) / this.maxHealth;
+        ctx.fillRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
+        ctx.strokeRect($canvas.width / 2 - barWidth / 2, this.y, barWidth, this.indicatorHeight);
     }
 }
