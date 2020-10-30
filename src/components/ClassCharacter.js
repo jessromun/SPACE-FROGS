@@ -17,6 +17,7 @@ class Character {
         this.score = 0;
         this.prevScore = 0;
         this.isFirstSoundPlayed = false;
+        this.canReceiveDamaged = true;
     }
 
     draw() {

@@ -7,7 +7,7 @@ const sounds = new Sounds();
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
 // TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
-let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.01, level = 1;
+let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.02, level = 1, powerUp = [];
 
 function defaultSettings() {
     intervalIdGame = null;
@@ -26,7 +26,7 @@ function defaultSettings() {
     p1.score = 0;
     indicators = new Indicator(15, $canvas.height - 60, 196, 15);
     isOver = false;
-    ampMovBoss = 0.01;
+    ampMovBoss = 0.02;
     level = 1;
     stopSound(sounds.lowHealth);
     stopSound(sounds.intro);
@@ -46,9 +46,10 @@ function update() {
     // 1. Calc.
     generateEnemies();
     generateFinalEnemy();
+    generatePowerUps();
     checkKeys();
     p1.changePos();
-    healCharacter();
+    //healCharacter();
     //2. Clear.
     cleanEnemies();
     cleanShots();
@@ -58,8 +59,10 @@ function update() {
     drawEnemies();
     drawFinalEnemy();
     p1.draw();
+    drawPowerUps();
     drawShots();
     drawIndicatorBars();
+    checkPowerUps();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
     checkShootFinalEnemy();
@@ -91,13 +94,9 @@ function isAlive(obj) {
     return obj.health <= 0;
 }
 
-function healCharacter() {
-    if (p1.score % 400 === 0 && p1.score && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
-        console.log('score: ', p1.score);
-        console.log(p1.health);
-        p1.health++;
-        console.log(p1.health);
-    }
+function stopSound(obj) {
+    obj.pause();
+    obj.currentTime = 0;
 }
 
 function drawIndicatorBars() {
@@ -106,9 +105,43 @@ function drawIndicatorBars() {
     indicators.drawScoreAndLevel(p1.score, level);
 }
 
-function stopSound(obj) {
-    obj.pause();
-    obj.currentTime = 0;
+
+// Power Ups ================================================================================================
+function generatePowerUps() {
+    const howManySecsToGen = 20;
+    if (frames % (60 * howManySecsToGen) === 0 && frames) {
+        let xPos = randomNumber($canvas.width);
+        let gravity = randomNumber(5, 0.5, false);
+        powerUp.push(new PowerUps(xPos, gravity));
+    }
+}
+
+function drawPowerUps() {
+    if (powerUp.length) {
+        powerUp.forEach(pu => pu.draw());
+    }
+}
+
+function checkPowerUps() {
+    powerUp = powerUp.filter(pu => {
+        switch (pu.type) {
+            case 1: //  health
+                if (p1.isTouching(pu) && p1.health < 6) {
+                    p1.health++;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    return false;
+                }
+                return true;
+            case 2: // defense
+
+            case 3: // ammo
+
+            default: // nothing
+                break;
+        }
+
+    });
 }
 
 // Controls =================================================================================================
@@ -179,9 +212,12 @@ function cleanEnemies() {
 function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
-            p1.health--;
-            stopSound(sounds.playerPain);
-            sounds.playerPain.play();
+            if (p1.canReceiveDamaged) {
+                p1.health--;
+                stopSound(sounds.playerPain);
+                sounds.playerPain.play();
+            }
+            p1.score += 10;
             return false;
         }
         return true;
@@ -252,7 +288,7 @@ function checkShootToEnemies() {
         if (enemiesLen !== enemiesArr.length) return false;
         return true;
     });
-    if (Math.sqrt(frames / 25) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
+    if (Math.sqrt(frames / 30) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
         if (enemiesCount < 20) enemiesCount++;
         console.log(enemiesCount)
     }
@@ -306,6 +342,7 @@ function gameOverStop() {
 function nextLevel(firstState) {
     p1 = firstState.p1;
     p1.score += 400;
+    p1.health++;
     level = firstState.level + 1;
     sounds.newLevel.play();
     stopSound(sounds.musicBossOn);
