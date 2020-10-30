@@ -12,5 +12,6 @@ class Sounds {
         this.musicGameOn = new Audio('../../sounds/Eric Skiff - A Night Of Dizzy Spells.mp3');
         this.musicBossOn = new Audio('../../sounds/Joshua McLean - Mountain Trials.mp3');
         this.intro = new Audio('../../sounds/256269__jmayoff__space-ship-atmosphere.wav');
+        this.clock = new Audio('../../sounds/452893__atevonhes__clock.wav');
     }
 }

@@ -66,7 +66,7 @@ function update() {
     drawShots();
     drawIndicatorBars();
     checkPowerUps();
-    checkDamageCharacter();
+    checkPowerUpsTimers();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
     checkShootFinalEnemy();
@@ -104,7 +104,7 @@ function stopSound(obj) {
 }
 
 function drawIndicatorBars() {
-    indicators.drawHealth(p1.health);
+    indicators.drawHealth(p1.health, p1.canReceiveDamage);
     indicators.drawBullets(p1.shotsArr, p1.bullets);
     indicators.drawScoreAndLevel(p1.score, level);
 }
@@ -122,7 +122,6 @@ function generatePowerUps() {
 
 function drawPowerUps() {
     if (powerUp.length) {
-        console.log('drawing power up');
         powerUp.forEach(pu => pu.draw());
     }
 }
@@ -144,8 +143,10 @@ function checkPowerUps() {
                     p1.receiveDamageTimeStart = frames;
                     stopSound(sounds.newLevel);
                     sounds.newLevel.play();
+                    sounds.clock.play();
                     return false;
                 }
+                return true;
             case 3: // ammo
 
             default: // nothing
@@ -155,9 +156,14 @@ function checkPowerUps() {
     });
 }
 
-function checkDamageCharacter() {
-    if (p1.receiveDamageTimeStart + (60 * 5) > frames) {
+function checkPowerUpsTimers() {
+    if ((p1.receiveDamageTimeStart + (60 * 5)) < frames) {
         p1.canReceiveDamage = true;
+        stopSound(sounds.clock);
+    }
+    if ((p1.fireTimeStart + (60 * 5)) < frames) {
+        p1.canReceiveDamage = true;
+        stopSound(sounds.clock);
     }
 }
 
@@ -249,11 +255,15 @@ function cleanEnemies() {
 function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
-            if (p1.canReceiveDamaged) {
+            if (p1.canReceiveDamage) {
                 p1.health--;
                 stopSound(sounds.playerPain);
                 sounds.playerPain.play();
             }
+            stopSound(sounds.destruction[0]);
+            stopSound(sounds.destruction[1]);
+            sounds.destruction[0].play();
+            sounds.destruction[1].play();
             p1.score += 10;
             return false;
         }
@@ -278,7 +288,6 @@ function drawFinalEnemy() {
     if (finalEnemy.length !== 0) {
         finalEnemy[0].drawImage();
         finalEnemy[1].drawDamageReceiver(finalEnemy[0].y);
-        console.log(finalEnemy[1].health)
     }
 }
 
@@ -327,7 +336,6 @@ function checkShootToEnemies() {
     });
     if (Math.sqrt(frames / 30) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
         if (enemiesCount < 20) enemiesCount++;
-        console.log(enemiesCount)
     }
 }
 
@@ -352,7 +360,6 @@ function gameOver() {
     if (isAlive(p1)) {
         stopInterval(intervalIdGame);
         clearCanvas();
-        console.log('score: ', p1.score);
         defaultSettings();
         intervalIdOver = requestAnimationFrame(gameOverDraw);
         stopSound(sounds.musicGameOn);

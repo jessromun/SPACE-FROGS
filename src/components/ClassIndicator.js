@@ -10,16 +10,26 @@ class Indicator {
         this.imgHeight = 20;
     }
 
-    drawHealth(health, maxHealth = 5) {
+    drawHealth(health, canReceiveDamage = true, maxHealth = 5) {
         ctx.fillStyle = 'crimson';
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = 'forestgreen';
-        ctx.font = "40px VT323";
-        ctx.fillText('Health', this.x, this.y - 5);
-        ctx.fillRect(this.x, this.y - 1, (this.width * health) / maxHealth, this.height + 2);
-        ctx.strokeStyle = "seagreen";
-        ctx.strokeText('Health', this.x, this.y - 5);
-        ctx.strokeRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
+        if (canReceiveDamage) {
+            ctx.fillStyle = 'forestgreen';
+            ctx.font = "40px VT323";
+            ctx.fillText('Health', this.x, this.y - 5);
+            ctx.fillRect(this.x, this.y - 1, (this.width * health) / maxHealth, this.height + 2);
+            ctx.strokeStyle = "seagreen";
+            ctx.strokeText('Health', this.x, this.y - 5);
+            ctx.strokeRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
+        } else {
+            ctx.fillStyle = 'gold';
+            ctx.font = "40px VT323";
+            ctx.fillText('Shield', this.x, this.y - 5);
+            ctx.fillRect(this.x, this.y - 1, (this.width * health) / maxHealth, this.height + 2);
+            ctx.strokeStyle = "goldenrod";
+            ctx.strokeText('Shield', this.x, this.y - 5);
+            ctx.strokeRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
+        }
     }
 
     drawBullets(shootsArr, bullets) {

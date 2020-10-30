@@ -19,6 +19,7 @@ class Character {
         this.isFirstSoundPlayed = false;
         this.canReceiveDamaged = true;
         this.receiveDamageTimeStart = 0;
+        this.fireTimeStart = 0;
     }
 
     draw() {

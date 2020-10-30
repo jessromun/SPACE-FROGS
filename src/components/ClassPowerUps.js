@@ -9,6 +9,8 @@ class PowerUps {
         this.healerImg.src = '../../images/heart.svg';
         this.shieldImg = new Image();
         this.shieldImg.src = '../../images/shield.svg';
+        this.fireImg = new Image();
+        this.fireImg.src = '../../images/shield.svg';
         this.type = type;
         this.draw = this.defineDraw(this.type); // draws the respective type
 
@@ -19,7 +21,7 @@ class PowerUps {
             case 1: // heal
                 return 38;
             case 2: // defense
-                return 45.6;
+                return 46;
             case 3: // ammo
                 return 41;
             default:
@@ -50,7 +52,11 @@ class PowerUps {
 
     drawShield() {
         this.y += this.gravity;
-        console.log(this.x, this.y);
         ctx.drawImage(this.shieldImg, this.x, this.y, this.width, this.height);
+    }
+
+    drawFire() {
+        this.y += this.gravity;
+        ctx.drawImage(this.fireImg, this.x, this.y, this.width, this.height);
     }
 }
