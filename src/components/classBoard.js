@@ -22,17 +22,8 @@ class Board {
     }
   }
 
-class Intro {
-  constructor (){
-    this.width = $canvas.width
-      this.height = $canvas.height
-      this.image = new Image ()
-      this.image.src = '../../images/intro.svg'
-  }
-  draw () {
-    ctx.drawImages(this.image)
-  }
-};
+
+
 
 
 
