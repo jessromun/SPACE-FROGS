@@ -2,6 +2,7 @@ const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
 const board = new Board();
 const intro = new Intro();
+const stageCero = new StageCero();
 const instructions = new Instructions();
 let countSpaceBar = 0;
 const sounds = new Sounds();
@@ -118,7 +119,7 @@ function stopSound(obj) {
 document.onkeydown = e => {
     keys[e.key] = true;
     switch (countSpaceBar){
-        case 0 : 
+        case 0 : stageCero.draw();
                  countSpaceBar++;
         break;
         case 1: clearCanvas();
