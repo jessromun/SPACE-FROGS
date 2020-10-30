@@ -10,7 +10,7 @@ class PowerUps {
         this.shieldImg = new Image();
         this.shieldImg.src = '../../images/shield.svg';
         this.fireImg = new Image();
-        this.fireImg.src = '../../images/heart.svg';
+        this.fireImg.src = '../../images/fire.svg';
         this.type = type;
         this.draw = this.defineDraw(this.type); // draws the respective type
 
@@ -23,7 +23,7 @@ class PowerUps {
             case 2: // defense
                 return 46;
             case 3: // ammo
-                return 41;
+                return 51;
             default:
                 return 40;
         }

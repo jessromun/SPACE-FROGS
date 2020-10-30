@@ -17,7 +17,7 @@ class Character {
         this.score = 0;
         this.prevScore = 0;
         this.isFirstSoundPlayed = false;
-        this.canReceiveDamaged = true;
+        this.canReceiveDamage = true;
         this.receiveDamageTimeStart = 0;
         this.fireTimeStart = 0;
     }

@@ -7,7 +7,7 @@ class Indicator {
         this.shotImg = new Image();
         this.shotImg.src = '../../images/shoot.svg';
         this.fireImg = new Image();
-        this.fireImg.src = '../../images/heart.svg';
+        this.fireImg.src = '../../images/fire.svg';
         this.imgWidth = 14;
         this.imgHeight = 20;
     }
@@ -18,21 +18,20 @@ class Indicator {
         if (canReceiveDamage) {
             ctx.font = "40px VT323";
             if (bullets === 500) {
+                ctx.fillStyle = "orange"
                 ctx.fillText('Fire!!!', this.x, this.y - 5);
             } else {
                 ctx.fillStyle = 'forestgreen';
                 ctx.fillText('Health', this.x, this.y - 5);
             }
-            ctx.fillStyle = 'forestgreen';
             ctx.fillRect(this.x, this.y - 1, (this.width * health) / maxHealth, this.height + 2);
             if (bullets === 500) {
-                ctx.strokeStyle = "red";
+                ctx.strokeStyle = "crimson";
                 ctx.strokeText('Fire!!!', this.x, this.y - 5);
             } else {
                 ctx.strokeStyle = "seagreen";
                 ctx.strokeText('Health', this.x, this.y - 5);
             }
-            ctx.strokeStyle = "seagreen";
             ctx.strokeRect(this.x, this.y, (this.width * health) / maxHealth, this.height);
         } else {
             ctx.fillStyle = 'gold';
@@ -47,7 +46,7 @@ class Indicator {
 
     drawBullets(shootsArr, bullets) {
         if (bullets === 500) {
-            for (let i = 0; i < 5 - shootsArr.length; i++) {
+            for (let i = 0; i < 10; i++) {
                 ctx.drawImage(this.fireImg, this.x + ((this.imgWidth + 6) * i), this.y + this.height + 6, this.imgWidth, this.imgHeight);
             }
         } else {

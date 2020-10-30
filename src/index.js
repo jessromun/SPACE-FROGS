@@ -1,16 +1,19 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
+const $button = document.querySelector('#start');
+
 const board = new Board();
 const intro = new Intro();
 const stageCero = new StageCero();
 const instructions = new Instructions();
-let countSpaceBar = 0;
+
+let countSpaceBar = 1;
 const sounds = new Sounds();
-// sounds.intro.play(); // TODO: Descomentar al entregar
+sounds.intro.play();
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
-// TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
+
 let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.02, level = 1, powerUp = [];
 
 function defaultSettings() {
@@ -30,7 +33,7 @@ function defaultSettings() {
     p1.score = 0;
     indicators = new Indicator(15, $canvas.height - 60, 196, 15);
     isOver = false;
-    ampMovBoss = 0.02;
+    ampMovBoss = 0.1;
     level = 1;
     stopSound(sounds.lowHealth);
     stopSound(sounds.intro);
@@ -41,6 +44,8 @@ document.querySelector('#start').onclick = start;
 function start() {
     if (intervalIdGame) return;
     defaultSettings();
+    hideButton();
+    countSpaceBar = 3;
     sounds.musicGameOn.play();
     intervalIdGame = requestAnimationFrame(update);
 }
@@ -110,14 +115,30 @@ function drawIndicatorBars() {
     indicators.drawScoreAndLevel(p1.score, level);
 }
 
+function hideButton() {
+    $button.style.zIndex = -1;
+}
+
+function showButton() {
+    $button.style.zIndex = 0;
+}
+
 
 // Power Ups ================================================================================================
 function generatePowerUps() {
-    const howManySecsToGen = 2;
+    const howManySecsToGen = 20;
     if (frames % (60 * howManySecsToGen) === 0 && frames) {
         let xPos = randomNumber($canvas.width);
         let gravity = randomNumber(5, 0.5, false);
-        powerUp.push(new PowerUps(xPos, gravity, 3));
+        let type;
+        if (level <= 3) {
+            type = randomNumber(6);
+        } else if (level > 3 && level < 5) {
+            type = randomNumber(4);
+        } else {
+            type = randomNumber(3);
+        }
+        powerUp.push(new PowerUps(xPos, gravity, type));
     }
 }
 
@@ -150,7 +171,7 @@ function checkPowerUps() {
                 return true;
             case 3: // ammo
                 if (p1.isTouching(pu)) {
-                    p1.shotsPerSec = 15;
+                    p1.shotsPerSec = 10;
                     p1.fireTimeStart = frames;
                     p1.bullets = 500;
                     stopSound(sounds.newLevel);
@@ -177,17 +198,13 @@ function checkPowerUpsTimers() {
         stopSound(sounds.clock);
     }
 }
-
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
     if (e.key === ' ') {
         switch (countSpaceBar) {
-            case 0:
-                stageCero.draw();
-                countSpaceBar++;
-                break;
             case 1: clearCanvas();
+                hideButton();
                 intro.draw();
                 countSpaceBar++;
                 break;
@@ -206,8 +223,6 @@ document.onkeyup = e => {
 };
 
 
-
-
 function checkKeys() {
     if (keys['ArrowUp']) {
         p1.y -= p1.velY;
@@ -222,7 +237,7 @@ function checkKeys() {
         p1.x += p1.velX;
     }
     if (keys[' ']) {
-        if (frames % (60 / p1.shotsPerSec) === 0) { // para disparar 5 veces ps
+        if (frames % (60 / p1.shotsPerSec) === 0) {
             if (p1.shotsArr.length < p1.bullets) {
                 p1.shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
                 if (p1.isFirstSoundPlayed) {
@@ -248,9 +263,9 @@ function generateEnemies() {
         let initFreq = randomNumber(0.2, 0.04, false);
         let initGravity = randomNumber(2, 0.5, false);
         if (enemiesCount > 4 && enemiesCount <= 8) {
-            initGravity = randomNumber(5, 0.98, false);
+            initGravity = randomNumber(5, 1, false);
         } else if (enemiesCount > 8 || finalEnemy.length > 0) {
-            initGravity = randomNumber(7, 1.2, false);
+            initGravity = randomNumber(7, 1.5, false);
         }
         enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
     }
@@ -284,9 +299,8 @@ function checkCrashEnemiesCharacter() {
 }
 
 // Final Enemy Functions ====================================================================================
-// TODO: cuando haya un nuevo nivel, resetear todo para que el jefe aparezca cuando deba.
 function generateFinalEnemy() {
-    if (enemiesCount === 6 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
+    if (enemiesCount === 8 && finalEnemy.length < 2) {
         finalEnemy.push(new FinalEnemy(300, 300, enemyHealth)); // * El que se verá
         finalEnemy.push(new FinalEnemy(200, 220, enemyHealth)); // * El que recibirá daño.
         stopSound(sounds.stageBossScream);
@@ -373,6 +387,7 @@ function gameOver() {
         stopInterval(intervalIdGame);
         clearCanvas();
         defaultSettings();
+        showButton();
         intervalIdOver = requestAnimationFrame(gameOverDraw);
         stopSound(sounds.musicGameOn);
         stopSound(sounds.musicBossOn);
@@ -383,9 +398,11 @@ function gameOver() {
 }
 
 function gameOverDraw() {
-    const img = new Image();
-    img.src = '../images/gameOver.svg';
-    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
+    const img = [new Image(), new Image()];
+    img[0].src = '../images/intro.svg';
+    ctx.drawImage(img[0], 0, 0, $canvas.width, $canvas.height);
+    img[1].src = '../images/gameOver.svg';
+    ctx.drawImage(img[1], $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
     intervalIdOver = requestAnimationFrame(gameOverDraw);
 }
 
