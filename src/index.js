@@ -66,6 +66,7 @@ function update() {
     drawShots();
     drawIndicatorBars();
     checkPowerUps();
+    checkDamageCharacter();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
     checkShootFinalEnemy();
@@ -115,12 +116,13 @@ function generatePowerUps() {
     if (frames % (60 * howManySecsToGen) === 0 && frames) {
         let xPos = randomNumber($canvas.width);
         let gravity = randomNumber(5, 0.5, false);
-        powerUp.push(new PowerUps(xPos, gravity));
+        powerUp.push(new PowerUps(xPos, gravity, 2));
     }
 }
 
 function drawPowerUps() {
     if (powerUp.length) {
+        console.log('drawing power up');
         powerUp.forEach(pu => pu.draw());
     }
 }
@@ -137,7 +139,13 @@ function checkPowerUps() {
                 }
                 return true;
             case 2: // defense
-
+                if (p1.isTouching(pu)) {
+                    p1.canReceiveDamage = false;
+                    p1.receiveDamageTimeStart = frames;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    return false;
+                }
             case 3: // ammo
 
             default: // nothing
@@ -147,23 +155,31 @@ function checkPowerUps() {
     });
 }
 
+function checkDamageCharacter() {
+    if (p1.receiveDamageTimeStart + (60 * 5) > frames) {
+        p1.canReceiveDamage = true;
+    }
+}
+
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
-    switch (countSpaceBar){
-        case 0 : 
-                 countSpaceBar++;
-        break;
-        case 1: clearCanvas();
+    if (e.key === ' ') {
+        switch (countSpaceBar) {
+            case 0:
+                countSpaceBar++;
+                break;
+            case 1: clearCanvas();
                 intro.draw()
                 countSpaceBar++;
-        break;
-        case 2: clearCanvas();
+                break;
+            case 2: clearCanvas();
                 instructions.draw()
                 countSpaceBar++;
-        break;
-        case 3: start(); 
-}
+                break;
+            case 3: start();
+        }
+    }
 };
 
 
@@ -171,7 +187,7 @@ document.onkeyup = e => {
     keys[e.key] = false;
 };
 
-   
+
 
 
 function checkKeys() {

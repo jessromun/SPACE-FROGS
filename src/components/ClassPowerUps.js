@@ -6,6 +6,9 @@ class PowerUps {
         this.y = -this.height - 1;
         this.gravity = gravity;
         this.healerImg = new Image();
+        this.healerImg.src = '../../images/heart.svg';
+        this.shieldImg = new Image();
+        this.shieldImg.src = '../../images/shield.svg';
         this.type = type;
         this.draw = this.defineDraw(this.type); // draws the respective type
 
@@ -27,9 +30,9 @@ class PowerUps {
     defineDraw(type) {
         switch (type) {
             case 1:
-                return this.drawHealer;
+                return this.drawHeart;
             case 2:
-
+                return this.drawShield;
             case 3:
 
             default:
@@ -40,10 +43,14 @@ class PowerUps {
         }
     }
 
-    drawHealer() {
+    drawHeart() {
         this.y += this.gravity;
-        ctx.fillStyle = "crimson";
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        // ctx.drawImage(this.healerImg, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.healerImg, this.x, this.y, this.width, this.height);
+    }
+
+    drawShield() {
+        this.y += this.gravity;
+        console.log(this.x, this.y);
+        ctx.drawImage(this.shieldImg, this.x, this.y, this.width, this.height);
     }
 }
