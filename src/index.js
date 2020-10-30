@@ -117,10 +117,12 @@ function drawIndicatorBars() {
 
 function hideButton() {
     $button.style.zIndex = -1;
+    document.querySelector("#canvas").style.boxShadow = "0px 0px 62px 16px rgba(0, 0, 0, 0.45)";
 }
 
 function showButton() {
     $button.style.zIndex = 0;
+    document.querySelector("#canvas").style.boxShadow = "";
 }
 
 

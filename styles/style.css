@@ -1,15 +1,38 @@
-@import url("Space\ Comics.ttf");
 @import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+
+html {
+  height: 99%;
+}
 
 body {
   padding: 0;
+  margin-top: 0;
+  height: 100%;
   text-align: center;
   background-color: #24243c;
-  font-family: "Space Comics", "VT323", monospace;
+  font-family: "VT323", monospace;
+  background-image: url(/images/background.svg);
+  background-size: cover;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  color: white;
 }
 
 h1 {
-  color: white;
+  letter-spacing: 0.2em;
+  margin: 1rem 0 0 0;
+  font-size: 3rem;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.45), 0 0 1em rgba(0, 0, 0, 0.45),
+    0 0 0.2em rgba(0, 0, 0, 0.45);
+}
+
+h2 {
+  letter-spacing: 0.1em;
+  margin: 1rem;
+  font-size: 2rem;
+  padding: 0 0.5rem;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.45), 0 0 1em rgba(0, 0, 0, 0.45),
+    0 0 0.2em rgba(0, 0, 0, 0.45);
 }
 
 #canvas {
@@ -21,10 +44,51 @@ h1 {
   margin: 0 auto;
 }
 
+#board {
+  padding-top: 2rem;
+}
+
 #start {
   border: none;
   cursor: pointer;
   background-color: transparent;
-  position: relative;
-  bottom: 300px;
+  position: absolute;
+  bottom: 400px;
+  left: 45vw;
+  z-index: 1;
+}
+
+#shadow {
+  -webkit-box-shadow: 0px 0px 62px 16px rgba(0, 0, 0, 0.45);
+  -moz-box-shadow: 0px 0px 62px 16px rgba(0, 0, 0, 0.45);
+  box-shadow: 0px 0px 62px 16px rgba(0, 0, 0, 0.45);
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
+}
+
+#developers {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.logos {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  /*border: 2px solid #2c2c4b; */
+  border-radius: 50%;
+}
+
+.devs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
 }
