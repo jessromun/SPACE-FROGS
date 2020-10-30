@@ -13,23 +13,18 @@ h1 {
 }
 
 #canvas {
-  background-image: url(/images/intro.svg);
+  background-image: url(/images/logomain.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: block;
   margin: 0 auto;
 }
 
 #start {
-  display: absolute;
-  display: flexbox;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  float: middle;
-  position: relative;
-  top: 300;
-  cursor: pointer;
   border: none;
-  margin: 0;
-  padding: 0;
-  text-align: center;
+  cursor: pointer;
+  background-color: transparent;
+  position: relative;
+  bottom: 300px;
 }

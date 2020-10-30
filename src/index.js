@@ -1,17 +1,20 @@
 const $canvas = document.querySelector('canvas');
 const ctx = $canvas.getContext('2d');
+const $button = document.querySelector('#start');
+
 const board = new Board();
 const intro = new Intro();
 const stageCero = new StageCero();
 const instructions = new Instructions();
-let countSpaceBar = 0;
+
+let countSpaceBar = 1;
 const sounds = new Sounds();
-// sounds.intro.play(); // TODO: Descomentar al entregar
+sounds.intro.play();
 
 let intervalIdGame = null, intervalIdOver = null;
 const keys = [];
-// TODO: Refactorizar para ahorrar la línea 7 y la función defaulSettings() en una sola.
-let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.01, level = 1;
+
+let frames, enemiesArr = [], enemiesCount = 1, finalEnemy = [], enemyHealth = 20, p1, indicators, isOver = false, ampMovBoss = 0.02, level = 1, powerUp = [];
 
 function defaultSettings() {
     intervalIdGame = null;
@@ -30,7 +33,7 @@ function defaultSettings() {
     p1.score = 0;
     indicators = new Indicator(15, $canvas.height - 60, 196, 15);
     isOver = false;
-    ampMovBoss = 0.01;
+    ampMovBoss = 0.1;
     level = 1;
     stopSound(sounds.lowHealth);
     stopSound(sounds.intro);
@@ -41,6 +44,8 @@ document.querySelector('#start').onclick = start;
 function start() {
     if (intervalIdGame) return;
     defaultSettings();
+    hideButton();
+    countSpaceBar = 3;
     sounds.musicGameOn.play();
     intervalIdGame = requestAnimationFrame(update);
 }
@@ -50,9 +55,10 @@ function update() {
     // 1. Calc.
     generateEnemies();
     generateFinalEnemy();
+    generatePowerUps();
     checkKeys();
     p1.changePos();
-    healCharacter();
+    //healCharacter();
     //2. Clear.
     cleanEnemies();
     cleanShots();
@@ -62,8 +68,11 @@ function update() {
     drawEnemies();
     drawFinalEnemy();
     p1.draw();
+    drawPowerUps();
     drawShots();
     drawIndicatorBars();
+    checkPowerUps();
+    checkPowerUpsTimers();
     checkCrashEnemiesCharacter();
     checkShootToEnemies();
     checkShootFinalEnemy();
@@ -95,51 +104,123 @@ function isAlive(obj) {
     return obj.health <= 0;
 }
 
-function healCharacter() {
-    if (p1.score % 400 === 0 && p1.score && p1.health < 5) { // TODO: solo cuando score%400, cura; tiene que ser cada 400. Probar cuando haya score, health en canvas
-        console.log('score: ', p1.score);
-        console.log(p1.health);
-        p1.health++;
-        console.log(p1.health);
-    }
-}
-
-function drawIndicatorBars() {
-    indicators.drawHealth(p1.health);
-    indicators.drawBullets(p1.shotsArr, p1.bullets);
-    indicators.drawScoreAndLevel(p1.score, level);
-}
-
 function stopSound(obj) {
     obj.pause();
     obj.currentTime = 0;
 }
 
+function drawIndicatorBars() {
+    indicators.drawHealth(p1.health, p1.canReceiveDamage, p1.bullets);
+    indicators.drawBullets(p1.shotsArr, p1.bullets);
+    indicators.drawScoreAndLevel(p1.score, level);
+}
+
+function hideButton() {
+    $button.style.zIndex = -1;
+}
+
+function showButton() {
+    $button.style.zIndex = 0;
+}
+
+
+// Power Ups ================================================================================================
+function generatePowerUps() {
+    const howManySecsToGen = 20;
+    if (frames % (60 * howManySecsToGen) === 0 && frames) {
+        let xPos = randomNumber($canvas.width);
+        let gravity = randomNumber(5, 0.5, false);
+        let type;
+        if (level <= 3) {
+            type = randomNumber(6);
+        } else if (level > 3 && level < 5) {
+            type = randomNumber(4);
+        } else {
+            type = randomNumber(3);
+        }
+        powerUp.push(new PowerUps(xPos, gravity, type));
+    }
+}
+
+function drawPowerUps() {
+    if (powerUp.length) {
+        powerUp.forEach(pu => pu.draw());
+    }
+}
+
+function checkPowerUps() {
+    powerUp = powerUp.filter(pu => {
+        switch (pu.type) {
+            case 1: //  health
+                if (p1.isTouching(pu) && p1.health < 6) {
+                    p1.health++;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    return false;
+                }
+                return true;
+            case 2: // defense
+                if (p1.isTouching(pu)) {
+                    p1.canReceiveDamage = false;
+                    p1.receiveDamageTimeStart = frames;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    sounds.clock.play();
+                    return false;
+                }
+                return true;
+            case 3: // ammo
+                if (p1.isTouching(pu)) {
+                    p1.shotsPerSec = 10;
+                    p1.fireTimeStart = frames;
+                    p1.bullets = 500;
+                    stopSound(sounds.newLevel);
+                    sounds.newLevel.play();
+                    sounds.clock.play();
+                    return false;
+                }
+                return true;
+            default: // nothing
+                break;
+        }
+
+    });
+}
+
+function checkPowerUpsTimers() {
+    if ((p1.receiveDamageTimeStart + (60 * 5)) < frames) {
+        p1.canReceiveDamage = true;
+        stopSound(sounds.clock);
+    }
+    if ((p1.fireTimeStart + (60 * 5)) < frames) {
+        p1.shotsPerSec = 5;
+        p1.bullets = 5;
+        stopSound(sounds.clock);
+    }
+}
 // Controls =================================================================================================
 document.onkeydown = e => {
     keys[e.key] = true;
-    switch (countSpaceBar){
-        case 0 : stageCero.draw();
-                 countSpaceBar++;
-        break;
-        case 1: clearCanvas();
-                intro.draw()
+    if (e.key === ' ') {
+        switch (countSpaceBar) {
+            case 1: clearCanvas();
+                hideButton();
+                intro.draw();
                 countSpaceBar++;
-        break;
-        case 2: clearCanvas();
-                instructions.draw()
+                break;
+            case 2: clearCanvas();
+                instructions.draw();
                 countSpaceBar++;
-        break;
-        case 3: start(); 
-}
+                break;
+            case 3: start();
+        }
+    }
 };
 
 
 document.onkeyup = e => {
     keys[e.key] = false;
 };
-
-   
 
 
 function checkKeys() {
@@ -156,7 +237,7 @@ function checkKeys() {
         p1.x += p1.velX;
     }
     if (keys[' ']) {
-        if (frames % (60 / p1.shotsPerSec) === 0) { // para disparar 5 veces ps
+        if (frames % (60 / p1.shotsPerSec) === 0) {
             if (p1.shotsArr.length < p1.bullets) {
                 p1.shotsArr.push(new Shot(p1.x + p1.width / 2 - 7, p1.y - 18));
                 if (p1.isFirstSoundPlayed) {
@@ -182,9 +263,9 @@ function generateEnemies() {
         let initFreq = randomNumber(0.2, 0.04, false);
         let initGravity = randomNumber(2, 0.5, false);
         if (enemiesCount > 4 && enemiesCount <= 8) {
-            initGravity = randomNumber(5, 0.98, false);
+            initGravity = randomNumber(5, 1, false);
         } else if (enemiesCount > 8 || finalEnemy.length > 0) {
-            initGravity = randomNumber(7, 1.2, false);
+            initGravity = randomNumber(7, 1.5, false);
         }
         enemiesArr.push(new Enemy(initX, initY, initWidth, initHeight, initFreq, initGravity));
     }
@@ -201,9 +282,16 @@ function cleanEnemies() {
 function checkCrashEnemiesCharacter() {
     enemiesArr = enemiesArr.filter(e => {
         if (p1.isTouching(e)) {
-            p1.health--;
-            stopSound(sounds.playerPain);
-            sounds.playerPain.play();
+            if (p1.canReceiveDamage) {
+                p1.health--;
+                stopSound(sounds.playerPain);
+                sounds.playerPain.play();
+            }
+            stopSound(sounds.destruction[0]);
+            stopSound(sounds.destruction[1]);
+            sounds.destruction[0].play();
+            sounds.destruction[1].play();
+            p1.score += 10;
             return false;
         }
         return true;
@@ -211,9 +299,8 @@ function checkCrashEnemiesCharacter() {
 }
 
 // Final Enemy Functions ====================================================================================
-// TODO: cuando haya un nuevo nivel, resetear todo para que el jefe aparezca cuando deba.
 function generateFinalEnemy() {
-    if (enemiesCount === 6 && finalEnemy.length < 2) { // TODO: CAMBIAR enemiesCount A 8 CUANDO TERMINEN LAS PRUEBAS
+    if (enemiesCount === 8 && finalEnemy.length < 2) {
         finalEnemy.push(new FinalEnemy(300, 300, enemyHealth)); // * El que se verá
         finalEnemy.push(new FinalEnemy(200, 220, enemyHealth)); // * El que recibirá daño.
         stopSound(sounds.stageBossScream);
@@ -227,7 +314,6 @@ function drawFinalEnemy() {
     if (finalEnemy.length !== 0) {
         finalEnemy[0].drawImage();
         finalEnemy[1].drawDamageReceiver(finalEnemy[0].y);
-        console.log(finalEnemy[1].health)
     }
 }
 
@@ -274,9 +360,8 @@ function checkShootToEnemies() {
         if (enemiesLen !== enemiesArr.length) return false;
         return true;
     });
-    if (Math.sqrt(frames / 25) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
+    if (Math.sqrt(frames / 30) % 1 === 0 && p1.score * p1.isFirstEnemyDestroyed) {
         if (enemiesCount < 20) enemiesCount++;
-        console.log(enemiesCount)
     }
 }
 
@@ -301,8 +386,8 @@ function gameOver() {
     if (isAlive(p1)) {
         stopInterval(intervalIdGame);
         clearCanvas();
-        console.log('score: ', p1.score);
         defaultSettings();
+        showButton();
         intervalIdOver = requestAnimationFrame(gameOverDraw);
         stopSound(sounds.musicGameOn);
         stopSound(sounds.musicBossOn);
@@ -313,9 +398,11 @@ function gameOver() {
 }
 
 function gameOverDraw() {
-    const img = new Image();
-    img.src = '../images/gameOver.svg';
-    ctx.drawImage(img, $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
+    const img = [new Image(), new Image()];
+    img[0].src = '../images/intro.svg';
+    ctx.drawImage(img[0], 0, 0, $canvas.width, $canvas.height);
+    img[1].src = '../images/gameOver.svg';
+    ctx.drawImage(img[1], $canvas.width / 4, $canvas.height / 3, $canvas.width / 2, $canvas.height / 4);
     intervalIdOver = requestAnimationFrame(gameOverDraw);
 }
 
@@ -328,6 +415,7 @@ function gameOverStop() {
 function nextLevel(firstState) {
     p1 = firstState.p1;
     p1.score += 400;
+    p1.health++;
     level = firstState.level + 1;
     sounds.newLevel.play();
     stopSound(sounds.musicBossOn);
